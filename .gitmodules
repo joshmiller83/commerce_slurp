@@ -1,0 +1,6 @@
+[submodule "libraries/goutte"]
+	path = libraries/goutte
+	url = git://github.com/fabpot/Goutte.git
+[submodule "libraries/krumo"]
+	path = libraries/krumo
+	url = git://github.com/s-soufian/krumo.git
