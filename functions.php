@@ -1,0 +1,498 @@
+<?php
+
+// function that determines how many jobs will run today
+// Also initializes job creation if no jobs exist
+function commerce_slurp_jobs_today() {
+  global $db;
+  
+  // How many jobs are there in the queue?
+  $result = $db->query("SELECT COUNT(jid) FROM jobs")->fetch_row();
+  $jobs_currently = array_pop($result);
+  
+  // How many jobs could there be in the queue?
+  $result = $db->query("SELECT SUM(slots_for_today) FROM source_types WHERE slots_for_today > 0")->fetch_row();
+  $jobs_possible = array_pop($result);
+  
+  // If we have less than possible, run our update to try to fill up the queue
+  if ($jobs_currently < $jobs_possible) {
+    commerce_slurp_update();
+  }
+  
+  // Final tally of jobs that can be run
+  $result = $db->query("SELECT COUNT(jid) FROM jobs")->fetch_row();
+  $jobs_currently = array_pop($result);
+  
+  // If we have no jobs, or can't run any more today, return zero
+  if ($jobs_currently == 0 || $jobs_possible == 0) {
+    return 0;
+  }
+  
+  // else return the lowest number
+  return ($jobs_currently < $jobs_possible)? $jobs_currently : $jobs_possible;
+}
+
+// function that will analyze source_types and fill job queue
+function commerce_slurp_update() {
+  global $db;
+  $now = time();
+  
+  $sources = $db->query("SELECT * FROM source_types");
+  while ($source = $sources->fetch_assoc()) {
+    $refresh_time = strtotime("+".$source['refresh_every']." days",strtotime($source['last_refresh']));
+    
+    echo "It has been ".ceil(($now-strtotime($source['last_refresh']))/60)." minutes since ".$source['stid']." was refreshed<br />";
+    echo $source['stid']." will refresh in ".ceil((($refresh_time - $now)/60)/60)." hours<br />";
+    
+    // days old
+    if ($source['refresh_every']>1) {
+      $days_left_until_refresh = ceil(((($refresh_time - $now)/60)/60)/24);
+      $days_we_have_run = $source['refresh_every'] - $days_left_until_refresh;
+      echo "Days left until refresh: $days_left_until_refresh<br />Days we have run: $days_we_have_run<br />";
+    }
+    
+    // Complete Refresh
+    if ($refresh_time < $now) {
+      $db->query("UPDATE source_types SET
+                 last_refresh=NOW(),
+                 slots_for_today=".ceil($source['slots_allotment']/$source['refresh_every']).",
+                 slots_until_refresh=".$source['slots_allotment']."
+                 WHERE stid='".$source['stid']."'");
+      echo "Refreshing the counters for ".$source['stid']."<br />";
+    
+    // Refresh daily counts
+    } elseif ($source['slots_for_today'] == 0 && ($refresh_time-$now) > (86400*$days_we_have_run) && $source['refresh_every']>1) {
+      
+      $db->query("UPDATE source_types SET
+                 last_refresh='".$source['last_refresh']."',
+                 slots_for_today=".ceil($source['slots_allotment']/$source['refresh_every'])."
+                 WHERE stid='".$source['stid']."'");
+      echo "Refreshing the daily counters for ".$source['stid']."<br />";
+    }
+    
+  }
+  
+  // Pull them again, this time, let's parse some jobs
+  $sources = $db->query("SELECT stid,multi,slots_for_today FROM source_types WHERE slots_for_today > 0");
+  while ($source = $sources->fetch_assoc()) {
+    $jobs = commerce_slurp_load_primary_source($source);
+    while ($job = $jobs->fetch_assoc()) {
+      commerce_slurp_add_job_from_source($job,$source['multi']);
+    }
+  }
+}
+
+function commerce_slurp_load_primary_source($source) {
+  global $db;
+  $sql = "SELECT psid,stid FROM primary_sources WHERE stid='".$source['stid']."'
+          ORDER BY last_checked ASC
+          LIMIT 0, ".$source['slots_for_today']; echo 'commerce_slurp_load_primary_source() = '.$sql.'<br />';
+  return $db->query($sql);
+}
+
+// function to add a job from a primary source
+function commerce_slurp_add_job_from_source($job,$multi) {
+  global $db;
+  if ($multi == 1) {
+    $result = $db->query("SELECT COUNT(psid) FROM jobs WHERE psid=".$job['psid'])->fetch_row();
+    if (array_pop($result) == 0) {
+      // add job
+      $sql = "INSERT INTO jobs (stid, psid) VALUES ('".$job['stid']."', ".$job['psid'].")";
+      $db->query($sql);
+    }
+    // update source
+    $sql = "UPDATE primary_sources SET last_checked=NOW() WHERE psid=".$job['psid'];
+    return $db->query($sql);
+  } else {
+    // Does this non-multi primary source exist in an updateable state in extensions
+    $sql = "SELECT extension_id FROM extensions WHERE psid=".$job['psid']." LIMIT 1";
+    $result = $db->query($sql);
+    if (!is_object($result) || @$result->num_rows == 0) {
+      // Nope, it's new. Add extension.
+      $complete_source = $db->query("SELECT * FROM primary_sources WHERE psid=".$job['psid']." LIMIT 1")->fetch_assoc();
+      $sql = "INSERT INTO extensions (url, psid, etid, esid) VALUES
+              ('".$complete_source['url']."',
+              ".$complete_source['psid'].",
+              '".$complete_source['etid']."',
+              'In-Development')";
+      $db->query($sql);
+      echo "hello";
+      // Get ID
+      $result2 = $db->query("SELECT extension_id FROM extensions WHERE psid=".$job['psid']." LIMIT 1");
+      if (is_object($result2)) {
+        $array = $result2->fetch_row();
+        $extension_id = array_pop($array);
+      } else {
+        krumo("Error. Couldn't retrieve extension_id for job.");
+      }
+    // otherwise we already have the eid
+    } else {
+      $array = $result->fetch_row();
+      if ($array != NULL) {
+        $extension_id = array_pop($array);
+      } else {
+        // the extension was deleted, but we have a primary source ... ?
+        krumo("WTF!! the extension was deleted, but we have a primary source ... ?");
+        return;
+      }
+    }
+    $result = $db->query("SELECT COUNT(extension_id) FROM jobs WHERE extension_id=".$extension_id)->fetch_row();
+    if (array_pop($result) == 0) {
+      
+      // Confirm that this extension has not been checked since the last time
+      // we refreshed this kind of job
+      
+      // All "Modules" were loaded ...
+      $sql = "SELECT last_refresh FROM source_types WHERE stid='".$job['stid']."' LIMIT 1";
+      $result = $db->query($sql)->fetch_row(); 
+      $last_refreshed = array_pop($result);
+      // This "Module" was last updated ...
+      $result = $db->query("SELECT last_checked FROM extensions WHERE extension_id=".$extension_id ." LIMIT 1")->fetch_row();
+      $last_checked = array_pop($result);
+      // If this module has never been checked or hasn't been checked since all
+      // "Modules were updated...
+      if ($last_checked == "0000-00-00 00:00:00" || strtotime($last_checked) < strtotime($last_refreshed)){
+        // Let's file an extension update by adding a job
+        $sql = "INSERT INTO jobs (stid, extension_id) VALUES ('".$job['stid']."', ".$extension_id.")";
+        $db->query($sql);
+      }
+    }
+    
+    // update source
+    $sql = "UPDATE primary_sources SET last_checked=NOW() WHERE psid=".$job['psid'];
+    return $db->query($sql);
+  }
+}
+
+// Function that parses extension pages on drupal.org
+function commerce_slurp_page($extension) {
+  global $db, $client;
+  $crawler = $client->request('GET', $extension['url']);
+  $name = $crawler->filter("h1#page-subtitle");
+  if ($name->count() > 0) $data['name'] = addslashes($name->text());
+  $author = $crawler->filter(".node .submitted a");
+  if ($author->count() > 0) $data['author'] = $author->text();
+  $data['status'] = "In Development"; // see below, based on release version
+  $data['downloads'] = 0;
+  $data['installs'] = 0;
+  $data['bugs'] = $crawler->filter("div.issue-cockpit-bug div.issue-cockpit-totals a");
+  $created = $crawler->filter("div.submitted em");
+  if ($created->count() > 0) $data['created'] = $created->text();
+  $data['last_modified'] = 0;
+  $images = $crawler->filter("div.field-field-project-images div.field-item a");
+  if ($images->count() > 0) $data['images'] = $images->attr("href");
+  $desc = $crawler->filter("div.node-content");
+  if ($desc->count() > 0) $data['desc'] = $desc->text();
+  // Targeting on UL that has lots of data...
+  // find maintenance & development status
+  $maintenance_status = "";
+  $dev_status = "";
+  $nodes = $crawler->filter(".project-info ul");
+  if ($nodes->count() > 0) {
+    foreach ($nodes as $status) {
+      // why doesn't $status->text give me this?
+      $text = strip_tags($status->ownerDocument->saveHTML($status));
+      if (stristr($text,"Maintenance")){
+        $maintenance_status = substr($text,20);
+      }
+      if (stristr($text,"Development")) {
+        $dev_status = substr($text,20);
+      }
+      if (stristr($text,"Reported")) {
+        $array = explode(" ",$text);
+        $data['installs'] = intval(str_replace(",","",$array[2]));
+      }
+      if (stristr($text,"Downloads")) {
+        $array = explode(" ",$text);
+        $data['downloads'] = intval(str_replace(",","",$array[1]));
+      }
+      if (stristr($text,"Last")) {
+        $data['last_modified'] = strtotime(substr($text,15));
+      }
+    }
+  }
+  foreach ($data as $label=>$object) {
+    switch($label) {
+      case "name":
+        if ($extension['etid'] == "Sandbox") {
+          $object = explode(":",$title);
+          $object = $object[1];
+          $data[$label] = $object;
+        }
+        break;
+      case "status":
+        // Type of release (beta, rc, alpha, stable)
+        $rec_release = $crawler->filter("div.download-table-ok tr.views-row-first td.views-field-version a");
+        if ($rec_release->count() > 0){
+          $rec_release = $rec_release->first()->text();
+          $version_parts = explode('-', $rec_release);
+          if (!empty($version_parts)) {
+            $version_parts_count = count($version_parts);
+            if (count($version_parts) > 2) {
+              $last_version_part = $version_parts[$version_parts_count - 1];
+              foreach (array('beta', 'alpha', 'rc') as $version_type) {
+                if (stripos($last_version_part, $version_type) !== FALSE) {
+                  $rec_release = $version_type;
+                  break;
+                }
+              }
+            }
+            else {
+             $rec_release = 'stable';
+            }
+          }
+        }
+        
+        $data[$label] = "In Development";
+        if ($extension['etid'] != "Sandbox" && ($rec_release == "beta" || $rec_release == "rc" || $rec_release == "stable")) {
+          $data[$label] = "Recommended";
+        } elseif ($extension['etid'] != "Sandbox" && !empty($rec_release)) {
+          $data[$label] = "Active";
+        } elseif ($dev_status=="Obsolete" || $maintenance_status == "Unsupported") {
+          $data[$label] = "Not Recommended";
+        }
+        break;
+      case "created":
+        if ($object) {
+          $created = str_ireplace(' at ', ' ', $object);
+          if (!empty($created)) {
+            $created = date_create($created);
+            $data[$label] = (int) $created->format("U");
+          }
+        } else {
+          $data[$label] = $data['modified'];
+        }
+        break;
+      case "bugs":
+        $data[$label] = ($object->count() != 0) ? intval(str_ireplace(' open', '', $object->first()->text())) : 0;
+        break;
+      case "desc":
+        // get sentences
+        $sentences = preg_split('/(?<=[.!?]|[.!?][\'"])\s+/', $object, -1, PREG_SPLIT_NO_EMPTY);
+        $desc = "";
+        
+        // go through each sentence, avoid if it's the disclaimer or headline, let it iterate to another paragraph
+        foreach ($sentences as $sentence) {
+          if (!stristr(@$sentence,"This is a sandbox project") && 
+              !stristr(@$sentence,"Git repository") && 
+              strncmp(strtolower($sentence), "overview", 8) !== 0 && 
+              strncmp(strtolower($sentence), "description", 11) !== 0 && 
+              !stristr(@$sentence,"Experimental Project") &&
+              strlen($desc) < 350){
+            $desc .= @$sentence . " ";
+          }
+          if (strlen($desc) > 350) break;
+        }
+        $data[$label] = addslashes($desc);
+        break;
+      case "last_modified":
+        // determine last commit (usually the most recent change is code to dev)
+        $last_commit = NULL;
+        $last_commit_obj = $crawler->filter("div.vc-commit-times");
+        // Does this exist? If so, let's create a date...
+        if ($last_commit_obj->count() > 0) {
+          $data2 = $crawler->filter("div.vc-commit-times")->text();
+          $commits = preg_split('@\,\s*@', $data2, 2);
+          foreach ($commits as $commit_i => $commit) {
+            if (stripos($commit, 'last') !== FALSE) {
+              $last_commit = preg_replace('@^.*\:\s*@', '', $commit);
+              if (!empty($last_commit)) {
+                $last_commit = date_create($last_commit);
+              }
+              break;
+            }
+          }
+          
+          // replace last_modified with last commit, if we found it.
+          if ($object != 0) {
+            if ($last_commit->format("U") > $last_modified) {
+              $data[$label] = $last_commit->format("U");
+            }
+          } else {
+            $data[$label] = $last_commit->format("U");
+          }
+        }
+        break;
+      default: break;
+    }
+  }
+  
+  return $data;
+}
+
+function commerce_slurp_run_next_job() {
+  global $db, $client;
+  $job = $db->query("SELECT jobs.*, source_types.*
+                     FROM jobs, source_types
+                     WHERE source_types.stid=jobs.stid
+                     ORDER BY jobs.weight DESC, jobs.jid ASC
+                     LIMIT 1")->fetch_assoc();
+  echo "<Br /><br /><hr><br />Running a Job<br />";
+  krumo($job);
+  // if we can't run this kind of job..
+  if ($job['slots_for_today'] == 0) {
+    // reduce the weight of the job
+    $sql = "UPDATE jobs SET weight=weight-1 WHERE jid=".$job['jid'];
+    $db->query($sql); //krumo($sql);
+    return true;
+  
+  // Else we can run this job
+  } else {
+    // Process Extension Update Jobs
+    if ($job['extension_id'] > 0) {
+      
+      // Pull current extension info
+      $sql = "SELECT * FROM extensions WHERE extension_id=".$job['extension_id']." LIMIT 1";
+      $extension = $db->query($sql)->fetch_assoc(); krumo($sql);
+      // Extract most updated info
+      // TODO: Pull local XML feed info if it's been less than a month
+      $extension_updated = commerce_slurp_page($extension);
+      
+      // Convert dates
+      if ($extension_updated['created'] > 0 ) {
+        $extension_updated['created'] = date("Y-m-d H:i:s",$extension_updated['created']);
+      }
+      if ($extension_updated['last_modified'] > 0 ) {
+        $extension_updated['last_modified'] = date("Y-m-d H:i:s",$extension_updated['last_modified']);
+      } else {
+        $extension_updated['last_modified'] = $extension_updated['created'];
+      }
+      
+      // Update extension
+      $sql = "UPDATE extensions SET
+              `name`='".$extension_updated['name']."',
+              `author`='".$extension_updated['author']."',
+              `esid`='".$extension_updated['status']."',
+              `downloads`=".$extension_updated['downloads'].",
+              `installs`=".$extension_updated['installs'].",
+              `bugs`=".$extension_updated['bugs'].",
+              `created`='".$extension_updated['created']."',
+              `modified`='".$extension_updated['last_modified']."',
+              `images`='".$extension_updated['images']."',
+              `description`='".$extension_updated['desc']."',
+              `last_checked`=NOW()
+              WHERE extension_id=".$job['extension_id'];
+      $db->query($sql);
+      echo "Updated one extension.";
+      krumo($extension_updated);
+
+      // Remove job, update counter
+      commerce_slurp_job_complete($job['jid'],$job['stid']);
+      
+      // Move on to the next one...
+      return true;
+      
+    // Assume we have only primary-sources left...
+    } else {
+      // Pull current source info
+      $source = $db->query("SELECT * FROM primary_sources WHERE psid=".$job['psid']." LIMIT 1")->fetch_assoc();
+      
+      // Pull HTML
+      $crawler = $client->request('GET', $source['url']);
+      $extensions_to_add = array();
+      
+      // Parse HTML
+      if ($job['stid'] == "RSS") {
+        echo "We don't support parsing RSS feeds yet, but soon!<br />";
+      } else {
+        switch ($source['etid']) {
+          case "Module":
+            $module_listings = $crawler->filter("dt.title a")->count();
+            if ($module_listings > 0) {
+              for ($i = 0; $i < $module_listings; ++$i) {
+                $url = $crawler->filter("dt.title a")->eq($i)->attr("href");
+                if (stristr($url,"commerce_") || stristr($url,"_commerce")) {
+                  $extensions_to_add[] = array(
+                    "name" => $crawler->filter("dt.title")->eq($i)->text(),
+                    "url" => $url,
+                    "author" => $crawler->filter("dd p:first-child a:first-child")->eq($i)->text(),
+                  );
+                }
+              }
+            }
+            break;
+          case "Theme":
+            $module_listings = $crawler->filter("dt.title a")->count();
+            if ($module_listings > 0) {
+              for ($i = 0; $i < $module_listings; ++$i) {
+                $extensions_to_add[] = array(
+                  "name" => $crawler->filter("dt.title")->eq($i)->text(),
+                  "url" => $crawler->filter("dt.title a")->eq($i)->attr("href"),
+                  "author" => $crawler->filter("dd p:first-child a:first-child")->eq($i)->text(),
+                );
+              }
+            }
+            break;
+          case "Distribution":
+            $module_listings = $crawler->filter(".project h2.title a")->count();
+            if ($module_listings > 0) {
+              for ($i = 0; $i < $module_listings; ++$i) {
+                $extensions_to_add[] = array(
+                  "name" => $crawler->filter(".project h2.title")->eq($i)->text(),
+                  "url" => "http://drupal.org".$crawler->filter(".project h2.title a")->eq($i)->attr("href"),
+                  "author" => $crawler->filter(".project ul.project-meta li.first a")->eq($i)->text(),
+                );
+              }
+            }
+            break;
+          case "Sandbox":
+            $module_listings = $crawler->filter(".project h2.title a")->count();
+            if ($module_listings > 0) {
+              for ($i = 0; $i < $module_listings; ++$i) {
+                $extensions_to_add[] = array(
+                  "name" => $crawler->filter(".project h2.title")->eq($i)->text(),
+                  "url" => "http://drupal.org".$crawler->filter(".project h2.title a")->eq($i)->attr("href"),
+                  "author" => $crawler->filter(".project ul.project-meta li.first a")->eq($i)->text(),
+                );
+              }
+            }
+            break;
+        }
+      }
+      echo "Found ".count($extensions_to_add)." ".$source['etid']." ".$job['stid'];
+      krumo($extensions_to_add);
+      // Add Extensions found
+      if (count($extensions_to_add) > 0) {
+        $sql = "INSERT INTO extensions (name, author, url, psid, etid, esid) VALUES";
+        $first = true;
+        foreach ($extensions_to_add as $data) {
+          if (!$first) $sql .= ', ';
+          // Add minimal extension record
+          $sql .= "('".trim(addslashes($data['name']))."',
+                  '".trim(addslashes($data['author']))."',
+                  '".trim($data['url'])."',
+                  ".$job['psid'].",
+                  '".$source['etid']."',
+                  'In-Development')";
+          $first = false;
+        }
+        $db->query($sql);
+      }
+      // Move on to the next one...
+      // Remove job, update counter
+      commerce_slurp_job_complete($job['jid'],$job['stid']);
+      return true;
+    }
+  }
+  return false;
+}
+
+// function to parse search results
+function commerce_slurp_searchresult($source, $job) {
+  
+}
+
+// remove the job, decrement the source type counter
+function commerce_slurp_job_complete($jid, $stid) {
+  global $db;
+  
+  // remove job
+  $sql = "DELETE FROM jobs WHERE jid=".$jid;
+  $db->query($sql);
+  
+  // decrement source type counters
+  $sql = "UPDATE `source_types` SET
+          `slots_for_today`=`slots_for_today`-1,
+          `slots_until_refresh`=`slots_until_refresh`-1
+          WHERE `stid`='".$stid."'";
+  $db->query($sql);
+}
