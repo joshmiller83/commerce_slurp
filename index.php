@@ -4,10 +4,10 @@
  */
 date_default_timezone_set("America/Indiana/Indianapolis");
 $seconds_between_cron = 15*60; // 15 minutes
-$speed_limit = 8;
+$speed_limit = 4;
 $now = time();
 $start_time = strtotime("8:00am");
-$end = "5:00 pm"; // we use this as output
+$end = "8:00 pm"; // we use this as output
 $end_time = strtotime($end);
 ?><html>
   <head>
@@ -30,36 +30,6 @@ $client = new Client();
 
 // Can only run during set period...
 echo "<pre>Start: <strong>".date("g:ia l, F jS",$now)."</strong></pre><br />";
-
-$sql = "SELECT * FROM source_types"; $result = "";
-//$result = $db->query($sql);
-if (is_object($result)) {
-  
-?>
-<p>Source Types:</p>
-<table>
-  <?php
-  $output = "";
-  while ($status_fields = $result->fetch_assoc()) {
-    $output .= "
-  <tr>
-    ";
-    foreach($status_fields as $label => $data) {
-      $output .= "<td>".$data."</td>\n    ";
-      $thead[$label] = $label;
-    }
-    $output .= "
-  </tr>
-    ";
-  }
-  ?>
-  <tr>
-    <?php foreach ($thead as $element) { ?><th><?php echo $element; ?></th><?php } ?>
-  </tr>
-  <?php echo $output; ?>
-</table>
-<?
-}
 
 if ($now >= $start_time && $now <= $end_time){
   $cron_runs_left = ($end_time - $now) / $seconds_between_cron;

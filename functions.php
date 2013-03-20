@@ -76,13 +76,29 @@ function commerce_slurp_update() {
   while ($source = $sources->fetch_assoc()) {
     $jobs = commerce_slurp_load_primary_source($source);
     while ($job = $jobs->fetch_assoc()) {
+      
+      // Add Source
       commerce_slurp_add_job_from_source($job,$source['multi']);
+      
+      if ($source['multi'] > 0) {
+        
+        // Loop through each extension and add a job for each result
+        $sql = "SELECT extension_id FROM extensions WHERE psid=".$job['psid'];
+        $extensions = $db->query($sql);
+        while ($extension = $extensions->fetch_assoc()) {
+          commerce_slurp_add_job_from_source(array(
+              'psid' => $job['psid'],
+              'stid' => $source['stid'],
+            ),0,$extension['extension_id']);
+        }
+      }
     }
   }
 }
 
 function commerce_slurp_load_primary_source($source) {
   global $db;
+  
   $sql = "SELECT psid,stid FROM primary_sources WHERE stid='".$source['stid']."'
           ORDER BY last_checked ASC
           LIMIT 0, ".$source['slots_for_today']; echo 'commerce_slurp_load_primary_source() = '.$sql.'<br />';
@@ -90,7 +106,7 @@ function commerce_slurp_load_primary_source($source) {
 }
 
 // function to add a job from a primary source
-function commerce_slurp_add_job_from_source($job,$multi) {
+function commerce_slurp_add_job_from_source($job,$multi,$extension_id=NULL) {
   global $db;
   if ($multi == 1) {
     $result = $db->query("SELECT COUNT(psid) FROM jobs WHERE psid=".$job['psid'])->fetch_row();
@@ -103,36 +119,38 @@ function commerce_slurp_add_job_from_source($job,$multi) {
     $sql = "UPDATE primary_sources SET last_checked=NOW() WHERE psid=".$job['psid'];
     return $db->query($sql);
   } else {
-    // Does this non-multi primary source exist in an updateable state in extensions
-    $sql = "SELECT extension_id FROM extensions WHERE psid=".$job['psid']." LIMIT 1";
-    $result = $db->query($sql);
-    if (!is_object($result) || @$result->num_rows == 0) {
-      // Nope, it's new. Add extension.
-      $complete_source = $db->query("SELECT * FROM primary_sources WHERE psid=".$job['psid']." LIMIT 1")->fetch_assoc();
-      $sql = "INSERT INTO extensions (url, psid, etid, esid) VALUES
-              ('".$complete_source['url']."',
-              ".$complete_source['psid'].",
-              '".$complete_source['etid']."',
-              'In-Development')";
-      $db->query($sql);
-      echo "hello";
-      // Get ID
-      $result2 = $db->query("SELECT extension_id FROM extensions WHERE psid=".$job['psid']." LIMIT 1");
-      if (is_object($result2)) {
-        $array = $result2->fetch_row();
-        $extension_id = array_pop($array);
+    if ($extension_id == NULL){
+      // Does this non-multi primary source exist in an updateable state in extensions
+      $sql = "SELECT extension_id FROM extensions WHERE psid=".$job['psid']." LIMIT 1";
+      $result = $db->query($sql);
+      if (!is_object($result) || @$result->num_rows == 0) {
+        // Nope, it's new. Add extension.
+        $complete_source = $db->query("SELECT * FROM primary_sources WHERE psid=".$job['psid']." LIMIT 1")->fetch_assoc();
+        $sql = "INSERT INTO extensions (url, psid, etid, esid) VALUES
+                ('".$complete_source['url']."',
+                ".$complete_source['psid'].",
+                '".$complete_source['etid']."',
+                'In-Development')";
+        $db->query($sql);
+        
+        // Get ID
+        $result2 = $db->query("SELECT extension_id FROM extensions WHERE psid=".$job['psid']." LIMIT 1");
+        if (is_object($result2)) {
+          $array = $result2->fetch_row();
+          $extension_id = array_pop($array);
+        } else {
+          echo "Error. Couldn't retrieve extension_id for job.";
+        }
+      // otherwise we already have the eid
       } else {
-        krumo("Error. Couldn't retrieve extension_id for job.");
-      }
-    // otherwise we already have the eid
-    } else {
-      $array = $result->fetch_row();
-      if ($array != NULL) {
-        $extension_id = array_pop($array);
-      } else {
-        // the extension was deleted, but we have a primary source ... ?
-        krumo("WTF!! the extension was deleted, but we have a primary source ... ?");
-        return;
+        $array = $result->fetch_row();
+        if ($array != NULL) {
+          $extension_id = array_pop($array);
+        } else {
+          // the extension was deleted, but we have a primary source ... ?
+          echo "WTF!! the extension was deleted, but we have a primary source ... ?";
+          return;
+        }
       }
     }
     $result = $db->query("SELECT COUNT(extension_id) FROM jobs WHERE extension_id=".$extension_id)->fetch_row();
@@ -145,13 +163,16 @@ function commerce_slurp_add_job_from_source($job,$multi) {
       $sql = "SELECT last_refresh FROM source_types WHERE stid='".$job['stid']."' LIMIT 1";
       $result = $db->query($sql)->fetch_row(); 
       $last_refreshed = array_pop($result);
+      
       // This "Module" was last updated ...
       $result = $db->query("SELECT last_checked FROM extensions WHERE extension_id=".$extension_id ." LIMIT 1")->fetch_row();
       $last_checked = array_pop($result);
+      
       // If this module has never been checked or hasn't been checked since all
       // "Modules were updated...
       if ($last_checked == "0000-00-00 00:00:00" || strtotime($last_checked) < strtotime($last_refreshed)){
         // Let's file an extension update by adding a job
+        if ($job['stid'] == "Search Result") $job['stid'] = 'Module Page';
         $sql = "INSERT INTO jobs (stid, extension_id) VALUES ('".$job['stid']."', ".$extension_id.")";
         $db->query($sql);
       }
@@ -186,27 +207,30 @@ function commerce_slurp_page($extension) {
   // find maintenance & development status
   $maintenance_status = "";
   $dev_status = "";
-  $nodes = $crawler->filter(".project-info ul");
-  if ($nodes->count() > 0) {
-    foreach ($nodes as $status) {
-      // why doesn't $status->text give me this?
-      $text = strip_tags($status->ownerDocument->saveHTML($status));
-      if (stristr($text,"Maintenance")){
-        $maintenance_status = substr($text,20);
-      }
-      if (stristr($text,"Development")) {
-        $dev_status = substr($text,20);
-      }
-      if (stristr($text,"Reported")) {
-        $array = explode(" ",$text);
-        $data['installs'] = intval(str_replace(",","",$array[2]));
-      }
-      if (stristr($text,"Downloads")) {
-        $array = explode(" ",$text);
-        $data['downloads'] = intval(str_replace(",","",$array[1]));
-      }
-      if (stristr($text,"Last")) {
-        $data['last_modified'] = strtotime(substr($text,15));
+  $li_count = $crawler->filter(".project-info ul li")->count();
+  if ($li_count > 0) {
+    for ($i = 0; $i < $li_count; ++$i) {
+      $li_text = $crawler->filter(".project-info ul li")->eq($i);
+      if ($li_text->count() > 0) {
+        $text = $li_text->text();
+        if (stristr($text,"Maintenance")){
+          $maintenance_status = substr($text,20);
+        }
+        if (stristr($text,"Development")) {
+          $dev_status = substr($text,20);
+        }
+        if (stristr($text,"Reported")) {
+          $array = explode(" ",$text);
+          $data['installs'] = intval(str_replace(",","",$array[2]));
+        }
+        if (stristr($text,"Downloads")) {
+          $array = explode(" ",$text);
+          $data['downloads'] = intval(str_replace(",","",$array[1]));
+        }
+        if (stristr($text,"Last")) {
+          $data['last_modified'] = strtotime(substr($text,15));
+        }
+        
       }
     }
   }
@@ -214,9 +238,12 @@ function commerce_slurp_page($extension) {
     switch($label) {
       case "name":
         if ($extension['etid'] == "Sandbox") {
-          $object = explode(":",$title);
-          $object = $object[1];
-          $data[$label] = $object;
+          $title = explode(":",$object);
+          if (count($title) > 1) {
+            array_shift($title);
+            $title = implode(" ",$title);
+            $data[$label] = $title;
+          }
         }
         break;
       case "status":
@@ -266,22 +293,37 @@ function commerce_slurp_page($extension) {
         $data[$label] = ($object->count() != 0) ? intval(str_ireplace(' open', '', $object->first()->text())) : 0;
         break;
       case "desc":
-        // get sentences
-        $sentences = preg_split('/(?<=[.!?]|[.!?][\'"])\s+/', $object, -1, PREG_SPLIT_NO_EMPTY);
         $desc = "";
-        
-        // go through each sentence, avoid if it's the disclaimer or headline, let it iterate to another paragraph
-        foreach ($sentences as $sentence) {
-          if (!stristr(@$sentence,"This is a sandbox project") && 
-              !stristr(@$sentence,"Git repository") && 
-              strncmp(strtolower($sentence), "overview", 8) !== 0 && 
-              strncmp(strtolower($sentence), "description", 11) !== 0 && 
-              !stristr(@$sentence,"Experimental Project") &&
-              strlen($desc) < 350){
-            $desc .= @$sentence . " ";
+        // get paragraphs
+        $paragraphs = preg_split('/$\R?^/m', $object, -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($paragraphs as $p) {
+          
+          // go through each sentence, avoid if it's the disclaimer or headline, let it iterate to another paragraph
+          preg_match_all('/([^\.\?!]+[\.\?!])/', $p, $sentences);
+          
+          if (count($sentences[0]) > 0) {
+            foreach ($sentences[0] as $sentence) {
+              
+              // Avoid "obligatory" text and common header text
+              if (!stristr(@$sentence,"Recommended releases") && 
+                  !stristr(@$sentence,"This is a sandbox project") && 
+                  !stristr(@$sentence,"Git repository") && 
+                  strncmp(strtolower($sentence), "overview", 8) !== 0 && 
+                  strncmp(strtolower($sentence), "description", 11) !== 0 && 
+                  !stristr(@$sentence,"Experimental Project") &&
+                  strlen($desc) < 350){
+                $desc .= @$sentence . " ";
+              }
+              // Stop if we are at our maximum
+              if (strlen($desc) > 350) break;
+            }
+            // Stop if we are at our maximum
+            if (strlen($desc) > 350) break;
           }
+          // Stop if we are at our maximum
           if (strlen($desc) > 350) break;
         }
+        
         $data[$label] = addslashes($desc);
         break;
       case "last_modified":
@@ -319,6 +361,42 @@ function commerce_slurp_page($extension) {
   return $data;
 }
 
+function commerce_slurp_extension_update ($eid,$extension_updated) {
+  global $db;
+  
+  // Convert dates
+  if ($extension_updated['created'] > 0 ) {
+    $extension_updated['created'] = date("Y-m-d H:i:s",$extension_updated['created']);
+  }
+  if ($extension_updated['last_modified'] > 0 ) {
+    $extension_updated['last_modified'] = date("Y-m-d H:i:s",$extension_updated['last_modified']);
+  } else {
+    $extension_updated['last_modified'] = $extension_updated['created'];
+  }
+  
+  if (!array_key_exists("images",$extension_updated)) $extension_updated['images'] = "";
+  // Update extension
+  $sql = "UPDATE extensions SET
+          `name`='".$extension_updated['name']."',
+          `author`='".$extension_updated['author']."',
+          `esid`='".$extension_updated['status']."',
+          `downloads`=".$extension_updated['downloads'].",
+          `installs`=".$extension_updated['installs'].",
+          `bugs`=".$extension_updated['bugs'].",
+          `created`='".$extension_updated['created']."',
+          `modified`='".$extension_updated['last_modified']."',
+          `images`='".$extension_updated['images']."',
+          `description`='".$extension_updated['desc']."',
+          `last_checked`=NOW()
+          WHERE extension_id=".$eid;
+  $db->query($sql);
+  echo "Updated one extension.";
+  krumo($extension_updated);
+  
+  // Move on to the next one...
+  return true;
+}
+
 function commerce_slurp_run_next_job() {
   global $db, $client;
   $job = $db->query("SELECT jobs.*, source_types.*
@@ -342,43 +420,16 @@ function commerce_slurp_run_next_job() {
       
       // Pull current extension info
       $sql = "SELECT * FROM extensions WHERE extension_id=".$job['extension_id']." LIMIT 1";
-      $extension = $db->query($sql)->fetch_assoc(); krumo($sql);
+      $extension = $db->query($sql)->fetch_assoc(); //krumo($sql);
+      
       // Extract most updated info
       // TODO: Pull local XML feed info if it's been less than a month
-      $extension_updated = commerce_slurp_page($extension);
+      commerce_slurp_extension_update($job['extension_id'],commerce_slurp_page($extension));
       
-      // Convert dates
-      if ($extension_updated['created'] > 0 ) {
-        $extension_updated['created'] = date("Y-m-d H:i:s",$extension_updated['created']);
-      }
-      if ($extension_updated['last_modified'] > 0 ) {
-        $extension_updated['last_modified'] = date("Y-m-d H:i:s",$extension_updated['last_modified']);
-      } else {
-        $extension_updated['last_modified'] = $extension_updated['created'];
-      }
-      
-      // Update extension
-      $sql = "UPDATE extensions SET
-              `name`='".$extension_updated['name']."',
-              `author`='".$extension_updated['author']."',
-              `esid`='".$extension_updated['status']."',
-              `downloads`=".$extension_updated['downloads'].",
-              `installs`=".$extension_updated['installs'].",
-              `bugs`=".$extension_updated['bugs'].",
-              `created`='".$extension_updated['created']."',
-              `modified`='".$extension_updated['last_modified']."',
-              `images`='".$extension_updated['images']."',
-              `description`='".$extension_updated['desc']."',
-              `last_checked`=NOW()
-              WHERE extension_id=".$job['extension_id'];
-      $db->query($sql);
-      echo "Updated one extension.";
-      krumo($extension_updated);
-
       // Remove job, update counter
       commerce_slurp_job_complete($job['jid'],$job['stid']);
       
-      // Move on to the next one...
+      // move on to the next one...
       return true;
       
     // Assume we have only primary-sources left...
@@ -438,11 +489,19 @@ function commerce_slurp_run_next_job() {
             $module_listings = $crawler->filter(".project h2.title a")->count();
             if ($module_listings > 0) {
               for ($i = 0; $i < $module_listings; ++$i) {
-                $extensions_to_add[] = array(
-                  "name" => $crawler->filter(".project h2.title")->eq($i)->text(),
-                  "url" => "http://drupal.org".$crawler->filter(".project h2.title a")->eq($i)->attr("href"),
-                  "author" => $crawler->filter(".project ul.project-meta li.first a")->eq($i)->text(),
-                );
+                $name = $crawler->filter(".project h2.title")->eq($i);
+                $name = ($name->count() > 0)? $name->text:"";
+                $url = $crawler->filter(".project h2.title a")->eq($i);
+                $url = ($url->count() > 0)? "http://drupal.org".$url->attr("href"):"";
+                $author = $crawler->filter(".project ul.project-meta li.first a")->eq($i)->text();
+                $author = ($author->count() > 0)? $author->text:"";
+                if ($url != "") {
+                  $extensions_to_add[] = array(
+                    "name" => $name,
+                    "url" => $url,
+                    "author" => $author,
+                  );
+                }
               }
             }
             break;

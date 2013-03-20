@@ -1,6 +1,6 @@
 <?php
 // Connect and check connection
-$db=mysqli_connect("localhost","root","root","commerce_slurp");
+$db = mysqli_connect("localhost","root","root","commerce_slurp");
 if (mysqli_connect_errno($db)) echo "Failed to connect to MySQL: " . mysqli_connect_error();
 
 // Initialize extension types
