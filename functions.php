@@ -63,7 +63,7 @@ function commerce_slurp_update() {
     } elseif ($source['slots_for_today'] == 0 && ($refresh_time-$now) > (86400*$days_we_have_run) && $source['refresh_every']>1) {
       
       $db->query("UPDATE source_types SET
-                 last_refresh='".$source['last_refresh']."',
+                 last_refresh=last_refresh,
                  slots_for_today=".ceil($source['slots_allotment']/$source['refresh_every'])."
                  WHERE stid='".$source['stid']."'");
       echo "Refreshing the daily counters for ".$source['stid']."<br />";
@@ -303,7 +303,6 @@ function commerce_slurp_page($extension) {
           
           if (count($sentences[0]) > 0) {
             foreach ($sentences[0] as $sentence) {
-              
               // Avoid "obligatory" text and common header text
               if (!stristr(@$sentence,"Recommended releases") && 
                   !stristr(@$sentence,"This is a sandbox project") && 
@@ -316,15 +315,19 @@ function commerce_slurp_page($extension) {
               }
               // Stop if we are at our maximum
               if (strlen($desc) > 350) break;
+              
+              // Stop if we have reached the download section
+              if (stristr(@$sentence,"Recommended releases") || trim(@$sentence)=="7.") break;
             }
-            // Stop if we are at our maximum
-            if (strlen($desc) > 350) break;
           }
           // Stop if we are at our maximum
           if (strlen($desc) > 350) break;
+
+          // Stop if we have reached the download section
+          if (stristr(@$sentence,"Recommended releases") || trim(@$sentence)=="7.") break;
         }
         
-        $data[$label] = addslashes($desc);
+        $data[$label] = addslashes(trim($desc));
         break;
       case "last_modified":
         // determine last commit (usually the most recent change is code to dev)
@@ -490,11 +493,11 @@ function commerce_slurp_run_next_job() {
             if ($module_listings > 0) {
               for ($i = 0; $i < $module_listings; ++$i) {
                 $name = $crawler->filter(".project h2.title")->eq($i);
-                $name = ($name->count() > 0)? $name->text:"";
+                $name = ($name->count() > 0)? $name->text():"";
                 $url = $crawler->filter(".project h2.title a")->eq($i);
                 $url = ($url->count() > 0)? "http://drupal.org".$url->attr("href"):"";
-                $author = $crawler->filter(".project ul.project-meta li.first a")->eq($i)->text();
-                $author = ($author->count() > 0)? $author->text:"";
+                $author = $crawler->filter(".project ul.project-meta li.first a")->eq($i);
+                $author = ($author->count() > 0)? $author->text():"";
                 if ($url != "") {
                   $extensions_to_add[] = array(
                     "name" => $name,
@@ -508,23 +511,36 @@ function commerce_slurp_run_next_job() {
         }
       }
       echo "Found ".count($extensions_to_add)." ".$source['etid']." ".$job['stid'];
+      $inserted = 0;
       krumo($extensions_to_add);
       // Add Extensions found
       if (count($extensions_to_add) > 0) {
         $sql = "INSERT INTO extensions (name, author, url, psid, etid, esid) VALUES";
         $first = true;
         foreach ($extensions_to_add as $data) {
-          if (!$first) $sql .= ', ';
-          // Add minimal extension record
-          $sql .= "('".trim(addslashes($data['name']))."',
-                  '".trim(addslashes($data['author']))."',
-                  '".trim($data['url'])."',
-                  ".$job['psid'].",
-                  '".$source['etid']."',
-                  'In-Development')";
-          $first = false;
+          $test = "SELECT * FROM extensions WHERE url='".$data['url']."' OR `name`='".trim(addslashes($data['name']))."'";
+          $current_exist = $db->query($test);
+          if ($current_exist->num_rows == 0) {
+            $inserted++;
+            if (!$first) $sql .= ', ';
+            // Add minimal extension record
+            $sql .= "('".trim(addslashes($data['name']))."',
+                    '".trim(addslashes($data['author']))."',
+                    '".trim($data['url'])."',
+                    ".$job['psid'].",
+                    '".$source['etid']."',
+                    'In-Development')";
+            $first = false;
+          }
         }
-        $db->query($sql);
+        $db->query($sql); //echo $sql;
+      }
+      if ($inserted==0) {
+        echo "<em>All of the ".$source['etid']." ".$job['stid'] . " already exist in database!</em><br />";
+      } else if ($inserted != count($extensions_to_add)) {
+        echo "Found <strong>$inserted</strong> new ".$source['etid']." ".$job['stid']."<br />";
+      } else {
+        echo "We added <strong>".count($extensions_to_add)."</strong> ".$source['etid']." ".$job['stid'] . " to the database.<br />";
       }
       // Move on to the next one...
       // Remove job, update counter
@@ -551,7 +567,8 @@ function commerce_slurp_job_complete($jid, $stid) {
   // decrement source type counters
   $sql = "UPDATE `source_types` SET
           `slots_for_today`=`slots_for_today`-1,
-          `slots_until_refresh`=`slots_until_refresh`-1
+          `slots_until_refresh`=`slots_until_refresh`-1,
+          `last_refresh`=`last_refresh`
           WHERE `stid`='".$stid."'";
   $db->query($sql);
 }
