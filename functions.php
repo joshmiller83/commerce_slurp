@@ -73,6 +73,8 @@ function commerce_slurp_update() {
   
   // Pull them again, this time, let's parse some jobs
   $sources = $db->query("SELECT stid,multi,slots_for_today FROM source_types WHERE slots_for_today > 0");
+  $first = true;
+  $extension_ids = '';
   while ($source = $sources->fetch_assoc()) {
     $jobs = commerce_slurp_load_primary_source($source);
     while ($job = $jobs->fetch_assoc()) {
@@ -80,18 +82,34 @@ function commerce_slurp_update() {
       // Add Source
       commerce_slurp_add_job_from_source($job,$source['multi']);
       
+      // Add Extensions to List
       if ($source['multi'] > 0) {
-        
-        // Loop through each extension and add a job for each result
+        // Loop through each extension and add it to the list of possible jobs
+        // we will then filter this list to make the oldest in this list go first
         $sql = "SELECT extension_id FROM extensions WHERE psid=".$job['psid'];
         $extensions = $db->query($sql);
         while ($extension = $extensions->fetch_assoc()) {
-          commerce_slurp_add_job_from_source(array(
-              'psid' => $job['psid'],
-              'stid' => $source['stid'],
-            ),0,$extension['extension_id']);
+          
+          if ($first) {
+            $extension_ids = $extension['extension_id'];
+            $first = false;
+          } else {
+            $extension_ids .= ', '.$extension['extension_id'];
+          }
+          /**/
         }
       }
+    }
+  }
+  if ($extension_ids != '') {
+    krumo($extension_ids);
+    $sql = 'SELECT extension_id, psid FROM extensions WHERE extension_id IN ('.$extension_ids.') ORDER BY last_checked ASC'; echo $sql.'<br />';
+    $extensions = $db->query($sql);
+    while ($extension = $sources->fetch_assoc()) {
+      commerce_slurp_add_job_from_source(array(
+          'psid' => $extension['psid'],
+          'stid' => 'Module Page',
+        ),0,$extension['extension_id']);
     }
   }
 }
@@ -192,7 +210,7 @@ function commerce_slurp_page($extension) {
   if ($name->count() > 0) $data['name'] = addslashes($name->text());
   $author = $crawler->filter(".node .submitted a");
   if ($author->count() > 0) $data['author'] = $author->text();
-  $data['status'] = "In Development"; // see below, based on release version
+  $data['status'] = "In-Development"; // see below, based on release version
   $data['downloads'] = 0;
   $data['installs'] = 0;
   $data['bugs'] = $crawler->filter("div.issue-cockpit-bug div.issue-cockpit-totals a");
@@ -269,7 +287,7 @@ function commerce_slurp_page($extension) {
           }
         }
         
-        $data[$label] = "In Development";
+        $data[$label] = "In-Development";
         if ($extension['etid'] != "Sandbox" && ($rec_release == "beta" || $rec_release == "rc" || $rec_release == "stable")) {
           $data[$label] = "Recommended";
         } elseif ($extension['etid'] != "Sandbox" && !empty($rec_release)) {
@@ -349,7 +367,7 @@ function commerce_slurp_page($extension) {
           
           // replace last_modified with last commit, if we found it.
           if ($object != 0) {
-            if ($last_commit->format("U") > $last_modified) {
+            if ($last_commit->format("U") > $data[$label]) {
               $data[$label] = $last_commit->format("U");
             }
           } else {
@@ -392,8 +410,15 @@ function commerce_slurp_extension_update ($eid,$extension_updated) {
           `description`='".$extension_updated['desc']."',
           `last_checked`=NOW()
           WHERE extension_id=".$eid;
-  $db->query($sql);
-  echo "Updated one extension.";
+  $update_result = $db->query($sql);
+  if ($update_result != false) {
+    echo "Updated one extension.";
+  } else {
+    echo "Failed to update:<br />";
+    echo $sql."<br />";
+    echo $db->error;
+    return false;
+  }
   krumo($extension_updated);
   
   // Move on to the next one...
