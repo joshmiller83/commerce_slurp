@@ -6,8 +6,8 @@ date_default_timezone_set("America/Indiana/Indianapolis");
 $seconds_between_cron = 15*60; // 15 minutes
 $speed_limit = 4;
 $now = time();
-$start_time = strtotime("8:00am");
-$end = "5:00 pm"; // we use this as output
+$start_time = strtotime("12:00am");
+$end = "5:00 am"; // we use this as output
 $end_time = strtotime($end);
 ?><html>
   <head>
