@@ -14,7 +14,7 @@ The initial database is actually in a flat file and gets built the first time it
 4. You may want to modify the start/end time (meant to be 6am - 5pm to "mask" the crawling nature of the program)
 5. You may also modify the "cron" which simply changes a "meta" refresh tag that loads index.php
 
-The initialized database will start to create a long list of extensions based on "sources." Most of the sources are search result pages on drupal.org. This is the most "reliable" method of getting at new modules, assuming the 
+The initialized database will start to create a long list of extensions based on "sources." Most of the sources are search result pages on drupal.org. This is the most "reliable" method of getting at new commerce modules.
 
 How it works
 ------------
