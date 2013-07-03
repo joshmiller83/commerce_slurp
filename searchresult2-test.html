@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!--[if IE]><script language="javascript" type="text/javascript" src="/sites/all/modules/flot/flot/excanvas.min.js"></script><![endif]-->
+<link rel="shortcut icon" href="/misc/favicon.ico" type="image/x-icon" />
+  <title>Distributions | drupal.org</title>
+  <link type="text/css" rel="stylesheet" media="all" href="http://drupal.org/files/css/css_1e7a5c50d2cfcb3317b2baeed9c4ceae.css" />
+  <script type="text/javascript" src="http://drupal.org/files/js/js_8b466f68c5b4e6ba845c6fe1cdecac70.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, {"basePath":"\/","googleanalytics":{"trackOutgoing":1,"trackMailto":1,"trackDownload":1,"trackDownloadExtensions":"7z|aac|arc|arj|asf|asx|avi|bin|csv|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls|xml|z|zip"},"html5UserGeolocationPrecision":"1","jcarousel":{"ajaxPath":"\/jcarousel\/ajax\/views"}});
+//--><!]]>
+</script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+if (Drupal.jsEnabled) { Drupal.flot = {}; }
+//--><!]]>
+</script>
+  <!--[if lte IE 6]><style>img, div#header-screen, a { behavior: url("/sites/all/themes/bluecheese/iepngfix.htc") }</style><![endif]-->
+  </head>
+
+<body class="not-front logged-in page-project no-sidebars drupalorg-site-main">
+  <div id="skip-links">
+    <a href="#content">Skip to main content</a>
+    <a href="#search">Skip to search</a>
+  </div>
+    <div id="header" class="clear-block">
+    <div id="header-screen" class="clear-block">
+      <div id="header-inner" class="container-12 clear-block">
+        <div id="nav-header" class="grid-12">
+          <ul><li class="menu-2 first"><a href="/start" title="Getting Started with Drupal">Get Started</a></li>
+<li class="menu-4"><a href="/community" title="Drupal Community">Community</a></li>
+<li class="menu-16434"><a href="/documentation" title="Drupal Documentation">Documentation</a></li>
+<li class="menu-14"><a href="/support" title="Support for using Drupal">Support</a></li>
+<li class="menu-10468"><a href="/download" title="Download and Extend Drupal">Download &amp; Extend</a></li>
+<li class="menu-10"><a href="/drupal-services" title="Buy Drupal Products and Services">Marketplace</a></li>
+<li class="menu-25050 last"><a href="/about" title="About Drupal">About</a></li>
+</ul>        </div> <!-- /#nav-header -->
+
+        <div id="header-content" class="grid-12">
+          <div id="header-left" class="grid-7 alpha">
+            <div id="header-left-inner" class="grid-6 alpha">
+              <div id="site-name"><a href="/" title="Drupal">Drupal</a></div>
+                          </div> <!-- /#header-left-inner -->
+          </div> <!-- /#header-left -->
+
+          <div id="header-right" class="grid-5 omega">
+            <div id="header-right-inner">
+              <form action="/search/site"  accept-charset="UTF-8" method="post" id="search-theme-form">
+<div><div id="search">
+  <div class="form-item" id="edit-search-theme-form-1-wrapper">
+ <input type="text" maxlength="128" name="search_theme_form" id="edit-search-theme-form-1" size="15" value="commerce" placeholder="Search drupal.org" class="form-text" />
+</div>
+  <input type="image" id="search-theme-form-submit" src="/sites/all/themes/bluecheese/images/btn-search.png" alt="Search" name="op" />
+  <div id="search-theme-form-advanced"><fieldset class=" collapsible collapsed"><legend>Refine your search</legend><div class="form-radios"><div class="form-divider"><div class="form-item" id="edit-meta-type--wrapper">
+ <label class="option" for="edit-meta-type-"><input type="radio" id="edit-meta-type-" name="meta_type" value=""  checked="checked"  class="form-radio" /> All</label>
+</div>
+<div class="form-item" id="edit-meta-type-module-wrapper">
+ <label class="option" for="edit-meta-type-module"><input type="radio" id="edit-meta-type-module" name="meta_type" value="module"   class="form-radio" /> Modules</label>
+</div>
+<div class="form-item" id="edit-meta-type-theme-wrapper">
+ <label class="option" for="edit-meta-type-theme"><input type="radio" id="edit-meta-type-theme" name="meta_type" value="theme"   class="form-radio" /> Themes</label>
+</div>
+</div><div class="form-item" id="edit-meta-type-documentation-wrapper">
+ <label class="option" for="edit-meta-type-documentation"><input type="radio" id="edit-meta-type-documentation" name="meta_type" value="documentation"   class="form-radio" /> Documentation</label>
+</div>
+<div class="form-item" id="edit-meta-type-forum-issues-wrapper">
+ <label class="option" for="edit-meta-type-forum-issues"><input type="radio" id="edit-meta-type-forum-issues" name="meta_type" value="forum-issues"   class="form-radio" /> Forums & Issues</label>
+</div>
+<div class="form-item" id="edit-meta-type-group-wrapper">
+ <label class="option" for="edit-meta-type-group"><input type="radio" id="edit-meta-type-group" name="meta_type" value="group"   class="form-radio" /> Groups</label>
+</div>
+</div></fieldset>
+</div>
+  <input type="hidden" name="form_build_id" id="form-6031bec093bc33db40d7da4365e15ae6" value="form-6031bec093bc33db40d7da4365e15ae6"  />
+<input type="hidden" name="form_token" id="edit-search-theme-form-form-token" value="dbbf56513983ee0b34b6ab9f5e3e1c05"  />
+<input type="hidden" name="form_id" id="edit-search-theme-form" value="search_theme_form"  />
+</div>
+
+</div></form>
+            </div> <!-- /#header-right-inner -->
+          </div> <!-- /#header-right -->
+        </div> <!-- /#header-content -->
+
+        <div id="nav-masthead" class="grid-12">
+          <ul><li class="homepage first"><a href="/home">Drupal Homepage</a></li>
+<li class="dashboard last"><a href="/user/315047/dashboard">Your Dashboard</a></li>
+</ul><div id="userinfo"><a href="/user" title="View &amp; edit your user profile">Logged in as joshmiller</a> <a href="/logout">Log out</a></div>        </div> <!-- /#nav-masthead -->
+      </div> <!-- /#header-inner -->
+    </div>
+  </div> <!-- /#header -->
+
+  <div id="page" class="container-12 clear-block">
+    <div id="page-inner">
+
+      <div id="page-heading" class="grid-12">
+
+                  <div id="page-title-tools" class="clear-block">
+
+            <div class="grid-8 alpha">
+                                                <h1 id="page-title" class="title">Download &amp; Extend</h1>
+                                          </div>
+
+                          <div id="page-tools" class="grid-4 omega">
+                              </div> <!-- /#page-tools -->
+                      </div> <!-- /#page-title-tools -->
+
+                      <div id="nav-content" class="clear-block">
+              <ul class="links"><li class="home first"><a href="/download">Download &amp; Extend Home</a></li>
+<li class="core"><a href="/project/drupal">Drupal Core</a></li>
+<li class="distributions active"><a href="/project/distributions" class="active">Distributions</a></li>
+<li class="modules"><a href="/project/modules">Modules</a></li>
+<li class="themes last"><a href="/project/themes">Themes</a></li>
+</ul>            </div> <!-- /#nav-content -->
+          
+          
+          
+        
+      </div> <!-- /#page-heading -->
+
+      <div id="column-left" class="grid-12">
+
+        
+        
+        <div id="content" class="clear-block">
+                    
+          <div id="content-inner" class="clear-block"><form action="/project/distributions/commerce?f[0]=drupal_core%3A103&amp;f[1]=bs_project_sandbox%3A0"  accept-charset="UTF-8" method="post" id="project-solr-browse-projects-form">
+<div><h3 class="results-count">10 Distributions match your search</h3><div class="form-item" id="edit-api-version-wrapper">
+ <label for="edit-api-version">Filter by compatibility: </label>
+ <select name="api_version" class="form-select" id="edit-api-version" ><option value="">- Any -</option><option value="7234">8.x</option><option value="103" selected="selected">7.x</option><option value="87">6.x</option><option value="78">5.x</option><option value="79">4.7.x</option></select>
+</div>
+<div class="form-item" id="edit-bs-project-sandbox-wrapper">
+ <label for="edit-bs-project-sandbox">Status: </label>
+ <select name="bs_project_sandbox" class="form-select" id="edit-bs-project-sandbox" ><option value="0" selected="selected">Full projects</option><option value="[* TO *]">All projects</option><option value="1">Only sandbox projects</option></select>
+</div>
+<div class="form-item" id="edit-text-wrapper">
+ <label for="edit-text">Search Distributions: </label>
+ <input type="text" maxlength="128" name="text" id="edit-text" size="20" value="commerce" class="form-text" />
+</div>
+<div class="form-item" id="edit-solrsort-wrapper">
+ <label for="edit-solrsort">Sort by: </label>
+ <select name="solrsort" class="form-select" id="edit-solrsort" ><option value="score desc" selected="selected">Relevancy</option><option value="sort_label asc">Title</option><option value="bundle asc">Type</option><option value="sort_name asc">Author</option><option value="ds_created desc">Date</option><option value="ds_project_latest_release desc">Last release</option><option value="ds_project_latest_activity desc">Last build</option><option value="iss_project_release_usage desc">Most installed</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Search"  class="form-submit" />
+<input type="hidden" name="form_build_id" id="form-6476a41383a22c0d76365aba18ab62fb" value="form-6476a41383a22c0d76365aba18ab62fb"  />
+<input type="hidden" name="form_token" id="edit-project-solr-browse-projects-form-form-token" value="492b262226824e5288bee32dbfef7723"  />
+<input type="hidden" name="form_id" id="edit-project-solr-browse-projects-form" value="project_solr_browse_projects_form"  />
+
+</div></form>
+<div class="project-type-description"><p>Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually.</p></div><div id="project-overview"><div class="project clear-block"><h2 class="title"><a href="/project/commerce_downloads">Commerce Downloads</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/452914" title="View user profile.">recrit</a> on <em>June 17, 2011 at 11:05am</em></li>
+<li class="last-changed first">Last changed: 29 weeks 3 days ago</li>
+</ul></div><p>A development install with Drupal Commerce and Commerce File pre-configured.  <strong>This is for development purposes only at the moment.</strong></p>
+<p>Sponsored by <a href="http://www.commerceguys.com" rel="nofollow">Commerce Guys</a></p>
+<div class="node-footer"><span class="links"><a href="/project/commerce_downloads" class="read_more">Find out more</a> &sdot; <a href="/project/issues/commerce_downloads" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13032" rel="tag" title="The module is not supported (i.e. abandoned), and is no longer being developed." class="taxonomy_term_13032">Unsupported</a>, <a href="/taxonomy/term/9994" rel="tag" title="" class="taxonomy_term_9994">Obsolete</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><div class="field field-type-filefield field-field-project-images">
+    <div class="field-items">
+            <div class="field-item odd">
+                    <a href="/project/commerce_kickstart" class="imagecache imagecache-grid-3 imagecache-linked imagecache-grid-3_linked"><img src="http://drupal.org/files/imagecache/grid-3/project-images/CKLogo.png" alt="Commerce Kickstart - logo" title=""  class="imagecache imagecache-grid-3" width="220" height="99" /></a>        </div>
+        </div>
+</div>
+<h2 class="title"><a href="/project/commerce_kickstart">Commerce Kickstart</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/49344" title="View user profile.">rszrama</a> on <em>March 2, 2011 at 3:31pm</em></li>
+<li class="last-changed first">Last changed: 7 weeks 6 days ago</li>
+</ul></div><p>Commerce Kickstart is the quickest way to get up and running with <a href="http://drupal.org/project/commerce" rel="nofollow">Drupal Commerce</a>. It includes the latest versions of Drupal core, Drupal Commerce, and the other modules it depends on.  It also gives you a set of options to create a fully-featured demo store out of the box complete with an attractive theme, catalog and search configuration, and a custom back office interface.</p>
+<p>Who should use Commerce Kickstart? Anyone who wants to skip weeks of configuration to build a commerce site on the Drupal Commerce framework. </p>
+<p>Sponsored by <a href="http://www.commerceguys.com" rel="nofollow">Commerce Guys</a>.</p>
+<div class="node-footer"><span class="links"><a href="/project/commerce_kickstart" class="read_more">Find out more</a> &sdot; <a href="/project/issues/commerce_kickstart" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><h2 class="title"><a href="/project/appstore">App store</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/99548" title="View user profile.">konforti</a> on <em>September 20, 2011 at 6:10am</em></li>
+<li class="last-changed first">Last changed: 1 year 15 weeks ago</li>
+</ul></div><p>This distribution will generate a <a href="http://drupal.org/project/commerce" rel="nofollow">"Drupal Commerce"</a> store, an app store. The store allows browsing applications, purchasing them (or getting them for free of course), install them remotely and manage several accounts (websites). In the future we envision many app stores which serve many Drupal websites, distributions and other apps.  </p>
+<p>For using the app store as a client site or distribution install this <a href="http://drupal.org/project/appstore_client" rel="nofollow">App store client</a> module.</p>
+<p>This module is based on the work described here: <a href="http://groups.drupal.org/node/175329" title="http://groups.drupal.org/node/175329" rel="nofollow">http://groups.drupal.org/node/175329</a></p>
+<div class="node-footer"><span class="links"><a href="/project/appstore" class="read_more">Find out more</a> &sdot; <a href="/project/issues/appstore" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><div class="field field-type-filefield field-field-project-images">
+    <div class="field-items">
+            <div class="field-item odd">
+                    <a href="/project/groupdeals" class="imagecache imagecache-grid-3 imagecache-linked imagecache-grid-3_linked"><img src="http://drupal.org/files/imagecache/grid-3/project-images/group-deals.png" alt="Group Deals" title=""  class="imagecache imagecache-grid-3" width="220" height="54" /></a>        </div>
+        </div>
+</div>
+<h2 class="title"><a href="/project/groupdeals">Group Deals</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/473174" title="View user profile.">fizk</a> on <em>May 16, 2012 at 2:00pm</em></li>
+<li class="last-changed first">Last changed: 2 weeks 3 days ago</li>
+</ul></div><p>Group deals is a Drupal distribution that gives you a Groupon website out of the box.</p>
+<p>Based on Drupal 7 and Drupal Commerce, and originally written by the good folks at <a href="/project/opendeals" rel="nofollow">Open Deals</a>.</p>
+<p>Read more about <a href="http://fizk.net/blog/technology/group-deals-groupon-clone-drupal" rel="nofollow">the goals of the Group Deals project</a>.</p>
+<h2>Features</h2>
+<ul><li>
+<h3>Create deals</h3>
+<ul><li>time period with starting and ending date</li>
+<li>selling price</li>
+<li>discounted price</li>
+<li>discount percentage</li>
+<li>minimum number of sells (todo)</li>
+<li>maximum number of sells (todo)</li>
+<li>commission fee (todo)</li>
+</ul></li>
+</ul><p><br /><br /><br /><br /></p>
+<div class="node-footer"><span class="links"><a href="/project/groupdeals" class="read_more">Find out more</a> &sdot; <a href="/project/issues/groupdeals" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><div class="field field-type-filefield field-field-project-images">
+    <div class="field-items">
+            <div class="field-item odd">
+                    <a href="/project/martplug" class="imagecache imagecache-grid-3 imagecache-linked imagecache-grid-3_linked"><img src="http://drupal.org/files/imagecache/grid-3/images/martplug-dev-1.png" alt="Homepage" title=""  class="imagecache imagecache-grid-3" width="220" height="148" /></a>        </div>
+        </div>
+</div>
+<h2 class="title"><a href="/project/martplug">MartPlug</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/12564" title="View user profile.">recidive</a> on <em>August 30, 2011 at 11:26am</em></li>
+<li class="last-changed first">Last changed: 43 weeks 5 days ago</li>
+</ul></div><p>MartPlug is a Drupal distribution tailored to make highly flexible online stores using Drupal and <a href="http://drupal.org/project/commerce" rel="nofollow">Drupal Commerce</a>.</p>
+<p>MartPlug contains the features common to all e-commerce stores, and offers a solid base to be extended to fit your e-commerce project needs.</p>
+<p>MartPlug ships with the MartPlug Elegant theme, which is a elegantly designed HTML5 theme based on <a href="http://drupal.org/project/omega" rel="nofollow">Omega</a>, that makes use of Responsive Design techniques to format the site for multiple devices.</p>
+<h2>Features</h2>
+<ul><li>Shopping cart</li>
+<li>Product catalog</li>
+<li>Product importing</li>
+<li>Digital/Downloadable products</li>
+<li>Media asset handling</li>
+<li>Mobile commerce ready</li>
+<li>Social networks integration</li>
+<li>Feature slideshows</li>
+<li>Support for multiple product images</li>
+<li>Blog</li>
+<li>Static pages</li>
+<li>Rich text editor</li>
+</ul><h2 id="build-martplug">Building MartPlug</h2>
+<p>MartPlug nightly development builds can be downloaded bellow. If you want to build MartPlug you can use <a href="http://drupal.org/project/drush" rel="nofollow">Drush</a> and <a href="http://drupal.org/project/drush_make" rel="nofollow">Drush make</a> (if using Drush 4.x).</p>
+<p>To do so create a file named martplug-build.make with the following content:</p>
+<p><code><br />
+core = 7.x<br />
+api = 2</code></p>
+<p>projects[drupal][type] = core</p>
+<div class="node-footer"><span class="links"><a href="/project/martplug" class="read_more">Find out more</a> &sdot; <a href="/project/issues/martplug" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><div class="field field-type-filefield field-field-project-images">
+    <div class="field-items">
+            <div class="field-item odd">
+                    <a href="/project/openhotel" class="imagecache imagecache-grid-3 imagecache-linked imagecache-grid-3_linked"><img src="http://drupal.org/files/imagecache/grid-3/project-images/openhotel.png" alt="Open Hotel Home Page" title=""  class="imagecache imagecache-grid-3" width="220" height="180" /></a>        </div>
+        </div>
+</div>
+<h2 class="title"><a href="/project/openhotel">Open Hotel</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/1145950" title="View user profile.">yannisc</a> on <em>October 28, 2012 at 4:13pm</em></li>
+<li class="last-changed first">Last changed: 18 weeks 23 hours ago</li>
+</ul></div><p>Open Hotel is a Drupal 7 Distribution that helps you create a full featured Hotel site with online booking and online availability.</p>
+<h2>Features</h2>
+<ul><li>Online Availability</li>
+<li>Online Booking</li>
+<li>Multilingual</li>
+<li>Photo Galleries</li>
+<li>Responsive Design</li>
+<li>Google Analytics E-Commerce Integrated</li>
+<li>Free and Open-Source</li>
+<li>Easy to integrate with any payments processor.</li>
+<li>Search Engines Optimized</li>
+</ul><p><strong>The distribution is under development. It's not ready for production use yet. Sign up to our newsletter at <a href="http://www.openhotelapp.com" rel="nofollow">Open Hotel</a> to get notified of production-ready releases.</strong></p>
+<p>This distribution is created and sponsored by <a href="http://www.netstudio.gr/en" rel="nofollow">Netstudio</a>.</p>
+<div class="node-footer"><span class="links"><a href="/project/openhotel" class="read_more">Find out more</a> &sdot; <a href="/project/issues/openhotel" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><div class="field field-type-filefield field-field-project-images">
+    <div class="field-items">
+            <div class="field-item odd">
+                    <a href="/project/one_profile" class="imagecache imagecache-grid-3 imagecache-linked imagecache-grid-3_linked"><img src="http://drupal.org/files/imagecache/grid-3/project-images/one_profile_date.png" alt="" title=""  class="imagecache imagecache-grid-3" width="220" height="184" /></a>        </div>
+        </div>
+</div>
+<h2 class="title"><a href="/project/one_profile">One Profile</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/372123" title="View user profile.">TechNikh</a> on <em>March 3, 2013 at 10:00pm</em></li>
+<li class="last-changed first">Last changed: 1 week 19 hours ago</li>
+</ul></div><p>Distribution for <a href="http://drupal.org/project/one" rel="nofollow">One Type</a></p>
+<p>Default fields in the Content type</p>
+<ul><li>Text</li>
+<li>Media(Images, Videos..)</li>
+<li>Date</li>
+<li>Location</li>
+<li>Link</li>
+<li>Price(Commerce)</li>
+<li>Import(from Feed URL)</li>
+<li>WebForm</li>
+<li>Tags(Keywords)</li>
+<li>Review(Comments)</li>
+<li>Rating(1-5 Stars)</li>
+</ul><p><strong>Use-cases:</strong></p>
+<ul><li>Restaurant (Menu is a list of all Content with image, price, Text &amp; tagged with "menuitem")</li>
+<li>Non Profit Organization (Events are all Content with image, Location, Text &amp; tagged with "event")</li>
+</ul><p>This will allow "non developers" to create dynamic lists of content.</p>
+<p>Demo @ <a href="http://one.technikh.com/" title="http://one.technikh.com/" rel="nofollow">http://one.technikh.com/</a></p>
+<p><strong>Example:</strong> <a href="http://one.technikh.com/node/187" title="http://one.technikh.com/node/187" rel="nofollow">http://one.technikh.com/node/187</a><br />
+Creating a Page tagged with the term "Wings" will show a dynamic list of content tagged with the same term "Wings"</p>
+<p><strong>Video Presentation:</strong><br />
+Skip to Slide 100 in this presentation I presented at Boston Drupal Meetup<br /><a href="http://mitsloan.mediasite.com/mediasite/Play/4ed90b21aa3147e88bc706ef8bdad2c41d?catalog=59bd02f9-5f76-43f3-b351-f42cc618ed2b" title="http://mitsloan.mediasite.com/mediasite/Play/4ed90b21aa3147e88bc706ef8bdad2c41d?catalog=59bd02f9-5f76-43f3-b351-f42cc618ed2b" rel="nofollow">http://mitsloan.mediasite.com/mediasite/Play/4ed90b21aa3147e88bc706ef8bd...</a></p>
+<div class="node-footer"><span class="links"><a href="/project/one_profile" class="read_more">Find out more</a> &sdot; <a href="/project/issues/one_profile" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><div class="field field-type-filefield field-field-project-images">
+    <div class="field-items">
+            <div class="field-item odd">
+                    <a href="/project/opendeals" class="imagecache imagecache-grid-3 imagecache-linked imagecache-grid-3_linked"><img src="http://drupal.org/files/imagecache/grid-3/project-images/preview.jpg" alt="" title=""  class="imagecache imagecache-grid-3" width="220" height="197" /></a>        </div>
+        </div>
+</div>
+<h2 class="title"><a href="/project/opendeals">Open Deals Drupal Distribution</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/1145950" title="View user profile.">yannisc</a> on <em>October 3, 2011 at 4:11am</em></li>
+<li class="last-changed first">Last changed: 21 weeks 3 days ago</li>
+</ul></div><h2>About Open Deals</h2>
+<p>Open Deals is a Free Deals Site distribution, based on Drupal 7, Drupal Commerce and other modules.<br />
+You can use the distribution for you or your clients and you can modify it at will.</p>
+<p>We hope that the distribution will be beneficial and useful for you.</p>
+<p>We'll be glad to listen to your comments and feedback.</p>
+<h2>Installation and setup instructions</h2>
+<p>1. Install as you would install Drupal. Select the <strong>Open Deals profile</strong> when asked.<br />
+Keep in mind though, that you will need to set php memory limit to <strong>at least 128MB</strong> and php max execution time to at least 120 seconds.<br />
+You can set the previous php settings by adding these two lines at the end of the  .htaccess file:</p>
+<p><strong>php_value memory_limit 128M</strong><br /><strong>php_value max_execution_time 120</strong></p>
+<p>OR by asking your host to change these values for you.</p>
+<p>2. Do any modification you see fit to make your site work as expected. Most probably, you will want to:<br />
+  a) Change the logo and / or the colors of your site. We propose that you do a subtheme and not alter the main theme.<br />
+  b) Add and setup your payment methods and checkout process.<br />
+  c) Change the texts of the site to make it unique (FAQ, How it Works, About etc.).<br />
+  d) Update the links to Facebook, Twitter etc. to yours.</p>
+<div class="node-footer"><span class="links"><a href="/project/opendeals" class="read_more">Find out more</a> &sdot; <a href="/project/issues/opendeals" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><h2 class="title"><a href="/project/b2b_store_solution">B2B store solution</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/790656" title="View user profile.">nortmas</a> on <em>June 6, 2011 at 12:13pm</em></li>
+<li class="last-changed first">Last changed: 46 weeks 6 days ago</li>
+</ul></div><h2> Attention! This distribution under strong re-factoring now due to incorrect initial architecture of the project. We will try to make a new stable release of this year :-) </h2>
+<h2>The Goal of the Project</h2>
+<p>The main goal to provide out of the box Internet store solution.<br />
+We will try to do the install profile so that after installing Drupal user will have ready to go online-shop.</p>
+<p>The second goal to get some good tool in business to business cooperation.<br />
+In this profile there is build in dealer user role with some discount.</p>
+<h2>Description</h2>
+<p>This is an installation profile that allows you to get your own online shop based on Drupal Commerce. Now it has a base functionality of the shop, additional user role "diller" which has a discount when user is logged in.<br />
+As a main theme we use blackpiano.  Rubik was selected as administration theme.<br />
+For more convenience of admin navigation we include administration menu in this profile. Also it has  some default content to better understand features of this profile.</p>
+<div class="node-footer"><span class="links"><a href="/project/b2b_store_solution" class="read_more">Find out more</a> &sdot; <a href="/project/issues/b2b_store_solution" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div><div class="project clear-block"><h2 class="title"><a href="/project/drustack">DruStack</a></h2><div class="item-list"><ul class="project-meta flat"><li class="submitted-by first">Posted by <a href="/user/33940" title="View user profile.">hswong3i</a> on <em>September 6, 2012 at 3:02am</em></li>
+<li class="last-changed first">Last changed: 3 days 11 hours ago</li>
+</ul></div><h3>DruStack - A Starting Distribution for Drupal Developer</h3>
+<p><a href="http://drupal.org/project/drustack" rel="nofollow">DruStack</a> is a freely available packaged distribution of the open source Drupal system. A collection of most common software from the Drupal community, <a href="http://drupal.org/project/drustack" rel="nofollow">DruStack</a> provides a quick on-ramp to begin building Drupal websites.</p>
+<p><a href="http://drupal.org/project/drustack" rel="nofollow">DruStack</a> integrated the development for Drupal installation. The pre-configured modules make you get a highly customized and total complete Drupal websites. You can get your own ready-made Blog setup by default Drupal installation procedure.</p>
+<p>DruStack replace most of the features and as a successor of <a href="http://drupal.org/project/pantarei_siren" rel="nofollow">PantaRei Siren</a> distribution.</p>
+<h3>Features Highlight</h3>
+<ul><li>Collection of 3rd party modules tested, verified and supported by <a href="http://drupal.org/node/1741828" rel="nofollow">PantaRei Design</a>.</li>
+<li>Pre-configured with commonly used functionality, including testing user account, roles, permission, input filter, WYSIWYG, and even more.</li>
+<li>Integrated with frequently-used 3rd party libraries, e.g. <a href="http://ckeditor.com/" rel="nofollow">CKEditor</a>, <a href="http://htmlpurifier.org/" rel="nofollow">HTML Purifier</a>, <a href="http://colorpowered.com/colorbox/" rel="nofollow">Colorbox</a>, <a href="http://code.google.com/p/google-code-prettify/" rel="nofollow">Code prettify</a>, etc.</li>
+<li>Most setup managed by Features and Strongarm with drustack_* packages so you may rollback as default whenever required.</li>
+</ul><div class="node-footer"><span class="links"><a href="/project/drustack" class="read_more">Find out more</a> &sdot; <a href="/project/issues/drustack" class="issues">Bugs and feature requests</a></span> <span class="separator">&sdot;</span> <span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/distributions" rel="tag" title="Distributions provide site features and functions for a specific type of site as a single download containing Drupal core, contributed modules, themes, and pre-defined configuration. They make it possible to quickly set up a complex, use-specific site in fewer steps than if installing and configuring elements individually." class="taxonomy_term_96">Distributions</a></span></div></div></div></div>
+                  </div> <!-- /#content -->
+
+      </div> <!-- /#column-left -->
+
+      
+          </div> <!-- /#page-inner -->
+  </div> <!-- /#page -->
+
+  <div id="footer">
+    <div id="footer-inner" class="container-12 clear-block">
+              <div id="footer-region" class="grid-12">
+          <div id="footer-region-inner" class="clear-block">
+            <div class="grid-footer alpha"><ul><li class="0 first"><a href="http://drupal.org/news">Drupal News</a></li>
+<li class="1"><a href="http://drupal.org/planet" title="News from Drupal community members">Planet Drupal</a></li>
+<li class="2"><a href="https://association.drupal.org/news" title="News from association.drupal.org">Association News</a></li>
+<li class="3"><a href="http://drupal.org/social-media" title="Drupal on social media">Social Media Directory</a></li>
+<li class="4"><a href="http://drupal.org/security" title="Advisories from the security team">Security Announcements</a></li>
+<li class="5 last"><a href="http://groups.drupal.org/jobs" title="Jobs posted on groups.drupal.org">Jobs</a></li>
+</ul></div><div class="grid-footer"><ul><li class="0 first"><a href="http://drupal.org/community">Community</a></li>
+<li class="1"><a href="http://drupal.org/getting-involved" title="Learn how to contribute to the Drupal project">Getting Involved</a></li>
+<li class="2"><span><a href="http://drupal.org/drupal-services" title="People and organizations offering Drupal services">Services</a>, <a href="http://drupal.org/training" title="People and organizations offering Drupal training">Training</a> & <a href="http://drupal.org/hosting" title="Organizations offering Drupal hosting">Hosting</a></span></li>
+<li class="3"><a href="http://groups.drupal.org/groups" title="groups.drupal.org">Groups &amp; Meetups</a></li>
+<li class="4 last"><a href="http://drupal.org/drupalcon" title="Upcoming and past DrupalCons">DrupalCon</a></li>
+</ul></div><div class="grid-footer"><ul><li class="0 first"><a href="http://drupal.org/start">Get Started</a></li>
+<li class="1"><a href="http://drupal.org/documentation" title="Guidebooks and documentation for working with Drupal">Documentation Home</a></li>
+<li class="2"><a href="http://drupal.org/documentation/install" title="Guide for installing Drupal">Installation Guide</a></li>
+<li class="3"><a href="http://drupal.org/documentation/build" title="Guide for building and extending Drupal sites">Site Building Guide</a></li>
+<li class="4"><a href="http://drupal.org/support" title="Drupal support options">Support</a></li>
+<li class="5 last"><a href="http://api.drupal.org/" title="Drupal API Reference">api.drupal.org</a></li>
+</ul></div><div class="grid-footer"><ul><li class="0 first"><a href="http://drupal.org/download">Download &amp; Extend</a></li>
+<li class="1"><a href="http://drupal.org/project/drupal" title="Download the latest version of the Drupal software">Drupal Core</a></li>
+<li class="2"><a href="http://drupal.org/project/modules" title="Download add-on features and functionality">Modules</a></li>
+<li class="3"><a href="http://drupal.org/project/themes" title="Download pre-designed styles for Drupal">Themes</a></li>
+<li class="4 last"><a href="http://drupal.org/project/distributions" title="Download a pre-packaged Drupal site">Distributions</a></li>
+</ul></div><div class="grid-footer omega"><ul><li class="0 first"><a href="http://drupal.org/about">About</a></li>
+<li class="1"><a href="http://drupal.org/druplicon" title="Drupal’s mascot">Druplicon</a></li>
+<li class="2"><a href="https://association.drupal.org/about" title="About the Drupal Association">The Drupal Association</a></li>
+<li class="3"><a href="https://association.drupal.org/advertising" title="How to advertise on Drupal.org">Advertise</a></li>
+<li class="4"><a href="http://drupal.org/node/179723" title="About Drupal.org">About Drupal.org</a></li>
+<li class="5 last"><a href="http://drupal.org/about/accessibility">Web accessibility</a></li>
+</ul></div>          </div> <!-- /#footer-region-inner -->
+        </div> <!-- /#footer-region -->
+                    <div id="footer-message" class="grid-12">
+          <div id="footer-message-inner" class="clear-block">
+            <p>Drupal is a <a href="http://drupal.com/trademark">registered trademark</a> of <a href="http://buytaert.net">Dries Buytaert</a>.</p>
+          </div> <!-- /#footer-message-inner -->
+        </div> <!-- /#footer-message -->
+          </div> <!-- /#footer-inner -->
+  </div> <!-- /#footer -->
+  <div style="position: absolute; top: -250px; left: -250px;"><a href="http://drupal.org/sites/all/modules/httpbl/donotremove.php">nobody click here</a></div><script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var _gaq = _gaq || [];_gaq.push(["_setAccount", "UA-2360451-1"]);_gaq.push(["_setVar", "authenticated user,Git user,Not a spammer"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
+//--><!]]>
+</script>
+</body>
+</html>

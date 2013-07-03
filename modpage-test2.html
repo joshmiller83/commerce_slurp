@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!--[if IE]><script language="javascript" type="text/javascript" src="/sites/all/modules/flot/flot/excanvas.min.js"></script><![endif]-->
+<link rel="shortcut icon" href="/misc/favicon.ico" type="image/x-icon" />
+  <title>webmasterkai&#039;s sandbox: DC Invoice Pay | drupal.org</title>
+  <link type="text/css" rel="stylesheet" media="all" href="http://drupal.org/files/css/css_868eea0c22503eccbce4c68265ed31ee.css" />
+  <script type="text/javascript" src="http://drupal.org/files/js/js_8b466f68c5b4e6ba845c6fe1cdecac70.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, {"basePath":"\/","googleanalytics":{"trackOutgoing":1,"trackMailto":1,"trackDownload":1,"trackDownloadExtensions":"7z|aac|arc|arj|asf|asx|avi|bin|csv|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls|xml|z|zip"},"html5UserGeolocationPrecision":"1","jcarousel":{"ajaxPath":"\/jcarousel\/ajax\/views"}});
+//--><!]]>
+</script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+if (Drupal.jsEnabled) { Drupal.flot = {}; }
+//--><!]]>
+</script>
+  <!--[if lte IE 6]><style>img, div#header-screen, a { behavior: url("/sites/all/themes/bluecheese/iepngfix.htc") }</style><![endif]-->
+  </head>
+
+<body class="not-front logged-in page-node node-type-project-project one-sidebar sidebar-right drupalorg-site-main">
+  <div id="skip-links">
+    <a href="#content">Skip to main content</a>
+    <a href="#search">Skip to search</a>
+  </div>
+    <div id="header" class="clear-block">
+    <div id="header-screen" class="clear-block">
+      <div id="header-inner" class="container-12 clear-block">
+        <div id="nav-header" class="grid-12">
+          <ul><li class="menu-2 first"><a href="/start" title="Getting Started with Drupal">Get Started</a></li>
+<li class="menu-4"><a href="/community" title="Drupal Community">Community</a></li>
+<li class="menu-16434"><a href="/documentation" title="Drupal Documentation">Documentation</a></li>
+<li class="menu-14"><a href="/support" title="Support for using Drupal">Support</a></li>
+<li class="menu-10468"><a href="/download" title="Download and Extend Drupal">Download &amp; Extend</a></li>
+<li class="menu-10"><a href="/drupal-services" title="Buy Drupal Products and Services">Marketplace</a></li>
+<li class="menu-25050 last"><a href="/about" title="About Drupal">About</a></li>
+</ul>        </div> <!-- /#nav-header -->
+
+        <div id="header-content" class="grid-12">
+          <div id="header-left" class="grid-7 alpha">
+            <div id="header-left-inner" class="grid-6 alpha">
+              <div id="site-name"><a href="/" title="Drupal">Drupal</a></div>
+                          </div> <!-- /#header-left-inner -->
+          </div> <!-- /#header-left -->
+
+          <div id="header-right" class="grid-5 omega">
+            <div id="header-right-inner">
+              <form action="/search/site"  accept-charset="UTF-8" method="post" id="search-theme-form">
+<div><div id="search">
+  <div class="form-item" id="edit-search-theme-form-1-wrapper">
+ <input type="text" maxlength="128" name="search_theme_form" id="edit-search-theme-form-1" size="15" value="" placeholder="Search drupal.org" class="form-text" />
+</div>
+  <input type="image" id="search-theme-form-submit" src="/sites/all/themes/bluecheese/images/btn-search.png" alt="Search" name="op" />
+  <div id="search-theme-form-advanced"><fieldset class=" collapsible collapsed"><legend>Refine your search</legend><div class="form-radios"><div class="form-divider"><div class="form-item" id="edit-meta-type--wrapper">
+ <label class="option" for="edit-meta-type-"><input type="radio" id="edit-meta-type-" name="meta_type" value=""  checked="checked"  class="form-radio" /> All</label>
+</div>
+<div class="form-item" id="edit-meta-type-module-wrapper">
+ <label class="option" for="edit-meta-type-module"><input type="radio" id="edit-meta-type-module" name="meta_type" value="module"   class="form-radio" /> Modules</label>
+</div>
+<div class="form-item" id="edit-meta-type-theme-wrapper">
+ <label class="option" for="edit-meta-type-theme"><input type="radio" id="edit-meta-type-theme" name="meta_type" value="theme"   class="form-radio" /> Themes</label>
+</div>
+</div><div class="form-item" id="edit-meta-type-documentation-wrapper">
+ <label class="option" for="edit-meta-type-documentation"><input type="radio" id="edit-meta-type-documentation" name="meta_type" value="documentation"   class="form-radio" /> Documentation</label>
+</div>
+<div class="form-item" id="edit-meta-type-forum-issues-wrapper">
+ <label class="option" for="edit-meta-type-forum-issues"><input type="radio" id="edit-meta-type-forum-issues" name="meta_type" value="forum-issues"   class="form-radio" /> Forums & Issues</label>
+</div>
+<div class="form-item" id="edit-meta-type-group-wrapper">
+ <label class="option" for="edit-meta-type-group"><input type="radio" id="edit-meta-type-group" name="meta_type" value="group"   class="form-radio" /> Groups</label>
+</div>
+</div></fieldset>
+</div>
+  <input type="hidden" name="form_build_id" id="form-0704da9246383d67f9b11012945b9e0f" value="form-0704da9246383d67f9b11012945b9e0f"  />
+<input type="hidden" name="form_token" id="edit-search-theme-form-form-token" value="dbbf56513983ee0b34b6ab9f5e3e1c05"  />
+<input type="hidden" name="form_id" id="edit-search-theme-form" value="search_theme_form"  />
+</div>
+
+</div></form>
+            </div> <!-- /#header-right-inner -->
+          </div> <!-- /#header-right -->
+        </div> <!-- /#header-content -->
+
+        <div id="nav-masthead" class="grid-12">
+          <ul><li class="homepage first"><a href="/home">Drupal Homepage</a></li>
+<li class="dashboard last"><a href="/user/315047/dashboard">Your Dashboard</a></li>
+</ul><div id="userinfo"><a href="/user" title="View &amp; edit your user profile">Logged in as joshmiller</a> <a href="/logout">Log out</a></div>        </div> <!-- /#nav-masthead -->
+      </div> <!-- /#header-inner -->
+    </div>
+  </div> <!-- /#header -->
+
+  <div id="page" class="container-12 clear-block">
+    <div id="page-inner">
+
+      <div id="page-heading" class="grid-12">
+
+                  <div id="page-title-tools" class="clear-block">
+
+            <div class="grid-8 alpha">
+                                                <div id="page-title" class="h2">Download &amp; Extend</div>
+                                          </div>
+
+                          <div id="page-tools" class="grid-4 omega">
+                <div id="block-drupalorg-add_to_dashboard" class="block block-drupalorg clear-block">
+  <div class="block-inner">
+    
+    <div class="block-content">
+      <a href="/homebox/js/dashboard/add/project_issue/issue_cockpit?nid=1305710&amp;token=0ad43170fd33027cab6d8d6630c1499e" class="add">Add Issues for DC Invoice Pay to dashboard</a>    </div>
+  </div>
+</div>
+              </div> <!-- /#page-tools -->
+                      </div> <!-- /#page-title-tools -->
+
+                      <div id="nav-content" class="clear-block">
+              <ul class="links"><li class="home first"><a href="/download">Download &amp; Extend Home</a></li>
+<li class="core"><a href="/project/drupal">Drupal Core</a></li>
+<li class="distributions"><a href="/project/distributions">Distributions</a></li>
+<li class="modules active"><a href="/project/modules" class="active">Modules</a></li>
+<li class="themes last"><a href="/project/themes">Themes</a></li>
+</ul>            </div> <!-- /#nav-content -->
+          
+          <div class="breadcrumb"><a href="/sandbox/webmasterkai/1305710" class="active">DC Invoice Pay</a></div>
+                      <h1 id="page-subtitle"><a href="/project/user/90662">webmasterkai&#039;s sandbox</a>: DC Invoice Pay</h1>
+          
+        
+      </div> <!-- /#page-heading -->
+
+      <div id="column-left" class="grid-8">
+
+                  <div id="tabs" class="clear-block">
+            <ul class="tabs primary clear-block"><li class="active" ><a href="/sandbox/webmasterkai/1305710" class="active">View</a></li>
+<li ><a href="/project/1305710/git-instructions">Version control</a></li>
+</ul>          </div> <!-- /#tabs -->
+        
+        
+        <div id="content" class="clear-block">
+                    
+          <div id="content-inner" class="clear-block"><div id="node-1305710" class="node clear-block node-type-project_project">
+
+  
+  
+      <div class="submitted">Posted by <a href="/user/90662" title="View user profile.">webmasterkai</a> on <em>October 11, 2011 at 12:27am</em></div>
+  
+  <div class="node-content">
+    <div class="meta"><h5>Experimental Project</h5><p>This is a <a href="/node/1011196">sandbox project</a>, which contains experimental code for developer use only.</p></div><form><input style="font-family: courier; width: 500px;" value="git clone http://git.drupal.org/sandbox/webmasterkai/1305710.git dc_invoice_pay" /></form><h2>Drupal Commerce Pay Invoice</h2>
+<p>Like fresh books, but simpler.  An admin creates an order, sends user/client a link to pay said invoice on drupal commerce site.  If this was the only purpose of the site a site admin could just disable the cart module.  The customer can't edit an order without the Cart module.</p>
+<ol><li>Admin Creates Order</li>
+<li>Site Invoices client (rules?) with link to pay invoice</li>
+<li>Client pays invoice using checkout system and payment module</li>
+</ol><h2>Possibly Related</h2>
+<ul><li><a href="http://drupal.org/sandbox/jsacksick/1250646" title="http://drupal.org/sandbox/jsacksick/1250646" rel="nofollow">http://drupal.org/sandbox/jsacksick/1250646</a></li>
+<li><a href="http://groups.drupal.org/node/163329" title="http://groups.drupal.org/node/163329" rel="nofollow">http://groups.drupal.org/node/163329</a></li>
+<li><a href="http://drupal.org/node/1282800" title="http://drupal.org/node/1282800" rel="nofollow">http://drupal.org/node/1282800</a></li>
+<li><a href="http://drupal.org/project/commerce_invoice" title="http://drupal.org/project/commerce_invoice" rel="nofollow">http://drupal.org/project/commerce_invoice</a></li>
+</ul>  </div>
+
+  <div class="node-footer"><span class="terms">Categories: <a href="/taxonomy/term/13028" rel="tag" title="Bug reports are looked at; requested features may be implemented." class="taxonomy_term_13028">Actively maintained</a>, <a href="/taxonomy/term/9988" rel="tag" title="" class="taxonomy_term_9988">Under active development</a>, <a href="/project/modules" rel="tag" title="Extend and customize Drupal functionality with contributed modules.
+
+If a module doesn&#039;t quite do what you want it to do, if you find a bug or have a suggestion, then join forces and help the module maintainer. Or, share your own by starting a new module." class="taxonomy_term_14">Modules</a>, <a href="/taxonomy/term/104" rel="tag" title="Includes general e-commerce modules and modules developed to enhance the e-commerce modules" class="taxonomy_term_104">E-commerce</a></span></div></div>
+</div>
+                  </div> <!-- /#content -->
+
+      </div> <!-- /#column-left -->
+
+              <div id="column-right" class="grid-4">
+          <div id="column-right-region">
+            <div id="block-versioncontrol_project-project_maintainers" class="block block-versioncontrol_project clear-block">
+  <div class="block-inner">
+          <h2>Maintainers for DC Invoice Pay</h2>
+    
+    <div class="block-content">
+      <div class="item-list"><ul><li class="first last"><li><div class="vc-user"><a href="/user/90662" title="View user profile.">webmasterkai</a> - <span class="vc-commits">2 commits</span></div><div class="vc-commit-times">last: 1 year ago, first: 1 year ago</div></li></li>
+</ul></div><div id="project-committers"><a href="/node/1305710/committers">View all committers</a></div><div id="project-commits"><a href="/node/1305710/commits">View commits</a></div>    </div>
+  </div>
+</div>
+<div id="block-project_issue-issue_cockpit" class="block block-project_issue clear-block">
+  <div class="block-inner">
+          <h2>Issues for DC Invoice Pay</h2>
+    
+    <div class="block-content">
+      To avoid duplicates, please search before submitting a new issue.
+  <form action="/project/issues/1305710"  accept-charset="UTF-8" method="get" id="project-issue-issue-cockpit-searchbox">
+<div><div class="form-item" id="edit-text-wrapper">
+ <input type="text" maxlength="128" name="text" id="edit-text" size="20" value="" class="form-text" />
+</div>
+<input type="hidden" name="status" id="edit-status" value="All"  />
+<input type="submit" id="edit-submit" value="Search"  class="form-submit" />
+<a href="/project/issues/search/1305710">Advanced search</a>
+</div></form>
+  <div class="issue-cockpit-categories">
+          <div class="issue-cockpit-All">
+        <span class="category-header">All issues</span>
+        <div class="issue-cockpit-totals">
+          <a href="/project/issues/1305710?categories=All">0 open</a>,
+          <a href="/project/issues/1305710?status=All&amp;categories=All">0 total</a>        </div>
+      </div>
+          <div class="issue-cockpit-bug">
+        <span class="category-header">Bug reports</span>
+        <div class="issue-cockpit-totals">
+          <a href="/project/issues/1305710?categories=bug">0 open</a>,
+          <a href="/project/issues/1305710?status=All&amp;categories=bug">0 total</a>        </div>
+      </div>
+      </div>
+
+  <div class="issue-cockpit-subscribe">
+    <a href="/project/issues/subscribe-mail/1305710?destination=node%2F1305710">Subscribe via e-mail</a>  </div>
+      <div class="issue-cockpit-statistics">
+      <a href="/project/issues/statistics/1305710">Issue statistics</a>    </div>
+        </div>
+  </div>
+</div>
+<div id="block-project-development" class="block block-project clear-block">
+  <div class="block-inner">
+          <h2>Development</h2>
+    
+    <div class="block-content">
+      <div class="item-list"><ul><li class="first"><a href="/project/issues/search/1305710?status[]=8&amp;status[]=13&amp;status[]=14">View pending patches</a></li>
+<li class="first"><a href="http://drupalcode.org/sandbox/webmasterkai/1305710.git">Repository viewer</a></li>
+<li class="first"><a href="/node/1305710/commits">View commits</a></li>
+<li class="first"><a href="/security-advisory-policy">Sandbox security policy</a></li>
+<li class="first"><a href="/list-changes/1305710">View change records</a></li>
+</ul></div>    </div>
+  </div>
+</div>
+          </div> <!-- /#column-right-region -->
+        </div> <!-- /#column-right -->
+      
+          </div> <!-- /#page-inner -->
+  </div> <!-- /#page -->
+
+  <div id="footer">
+    <div id="footer-inner" class="container-12 clear-block">
+              <div id="footer-region" class="grid-12">
+          <div id="footer-region-inner" class="clear-block">
+            <div class="grid-footer alpha"><ul><li class="0 first"><a href="http://drupal.org/news">Drupal News</a></li>
+<li class="1"><a href="http://drupal.org/planet" title="News from Drupal community members">Planet Drupal</a></li>
+<li class="2"><a href="https://association.drupal.org/news" title="News from association.drupal.org">Association News</a></li>
+<li class="3"><a href="http://drupal.org/social-media" title="Drupal on social media">Social Media Directory</a></li>
+<li class="4"><a href="http://drupal.org/security" title="Advisories from the security team">Security Announcements</a></li>
+<li class="5 last"><a href="http://groups.drupal.org/jobs" title="Jobs posted on groups.drupal.org">Jobs</a></li>
+</ul></div><div class="grid-footer"><ul><li class="0 first"><a href="http://drupal.org/community">Community</a></li>
+<li class="1"><a href="http://drupal.org/getting-involved" title="Learn how to contribute to the Drupal project">Getting Involved</a></li>
+<li class="2"><span><a href="http://drupal.org/drupal-services" title="People and organizations offering Drupal services">Services</a>, <a href="http://drupal.org/training" title="People and organizations offering Drupal training">Training</a> & <a href="http://drupal.org/hosting" title="Organizations offering Drupal hosting">Hosting</a></span></li>
+<li class="3"><a href="http://groups.drupal.org/groups" title="groups.drupal.org">Groups &amp; Meetups</a></li>
+<li class="4 last"><a href="http://drupal.org/drupalcon" title="Upcoming and past DrupalCons">DrupalCon</a></li>
+</ul></div><div class="grid-footer"><ul><li class="0 first"><a href="http://drupal.org/start">Get Started</a></li>
+<li class="1"><a href="http://drupal.org/documentation" title="Guidebooks and documentation for working with Drupal">Documentation Home</a></li>
+<li class="2"><a href="http://drupal.org/documentation/install" title="Guide for installing Drupal">Installation Guide</a></li>
+<li class="3"><a href="http://drupal.org/documentation/build" title="Guide for building and extending Drupal sites">Site Building Guide</a></li>
+<li class="4"><a href="http://drupal.org/support" title="Drupal support options">Support</a></li>
+<li class="5 last"><a href="http://api.drupal.org/" title="Drupal API Reference">api.drupal.org</a></li>
+</ul></div><div class="grid-footer"><ul><li class="0 first"><a href="http://drupal.org/download">Download &amp; Extend</a></li>
+<li class="1"><a href="http://drupal.org/project/drupal" title="Download the latest version of the Drupal software">Drupal Core</a></li>
+<li class="2"><a href="http://drupal.org/project/modules" title="Download add-on features and functionality">Modules</a></li>
+<li class="3"><a href="http://drupal.org/project/themes" title="Download pre-designed styles for Drupal">Themes</a></li>
+<li class="4 last"><a href="http://drupal.org/project/distributions" title="Download a pre-packaged Drupal site">Distributions</a></li>
+</ul></div><div class="grid-footer omega"><ul><li class="0 first"><a href="http://drupal.org/about">About</a></li>
+<li class="1"><a href="http://drupal.org/druplicon" title="Drupal’s mascot">Druplicon</a></li>
+<li class="2"><a href="https://association.drupal.org/about" title="About the Drupal Association">The Drupal Association</a></li>
+<li class="3"><a href="https://association.drupal.org/advertising" title="How to advertise on Drupal.org">Advertise</a></li>
+<li class="4"><a href="http://drupal.org/node/179723" title="About Drupal.org">About Drupal.org</a></li>
+<li class="5 last"><a href="http://drupal.org/about/accessibility">Web accessibility</a></li>
+</ul></div>          </div> <!-- /#footer-region-inner -->
+        </div> <!-- /#footer-region -->
+                    <div id="footer-message" class="grid-12">
+          <div id="footer-message-inner" class="clear-block">
+            <p>Drupal is a <a href="http://drupal.com/trademark">registered trademark</a> of <a href="http://buytaert.net">Dries Buytaert</a>.</p>
+          </div> <!-- /#footer-message-inner -->
+        </div> <!-- /#footer-message -->
+          </div> <!-- /#footer-inner -->
+  </div> <!-- /#footer -->
+  <div><a href="http://drupal.org/sites/all/modules/httpbl/donotremove.php"><!-- nobody click here --></a></div><script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var _gaq = _gaq || [];_gaq.push(["_setAccount", "UA-2360451-1"]);_gaq.push(["_setVar", "authenticated user,Git user,Not a spammer"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
+//--><!]]>
+</script>
+</body>
+</html>
