@@ -4,29 +4,31 @@
 // Also initializes job creation if no jobs exist
 function commerce_slurp_jobs_today() {
   global $db;
-  
+
   // How many jobs are there in the queue?
   $result = $db->query("SELECT COUNT(jid) FROM jobs")->fetch_row();
   $jobs_currently = array_pop($result);
-  
+
   // How many jobs could there be in the queue?
   $result = $db->query("SELECT SUM(slots_for_today) FROM source_types WHERE slots_for_today > 0")->fetch_row();
   $jobs_possible = array_pop($result);
-  
+
   // If we have less than possible, run our update to try to fill up the queue
   if ($jobs_currently < $jobs_possible) {
+    echo "<p>Need to fill the Job Queue because we can run more jobs than we have queued.</p>";
     commerce_slurp_update();
   }
-  
+
   // Final tally of jobs that can be run
   $result = $db->query("SELECT COUNT(jid) FROM jobs")->fetch_row();
   $jobs_currently = array_pop($result);
-  
+
   // If we have no jobs, or can't run any more today, return zero
   if ($jobs_currently == 0 || $jobs_possible == 0) {
+    echo "<p>No Jobs can be run because the queue is empty.</p>";
     return 0;
   }
-  
+
   // else return the lowest number
   return ($jobs_currently < $jobs_possible)? $jobs_currently : $jobs_possible;
 }
@@ -35,21 +37,21 @@ function commerce_slurp_jobs_today() {
 function commerce_slurp_update() {
   global $db;
   $now = time();
-  
+
   $sources = $db->query("SELECT * FROM source_types");
   while ($source = $sources->fetch_assoc()) {
     $refresh_time = strtotime("+".$source['refresh_every']." days",strtotime($source['last_refresh']));
-    
+
     echo "It has been ".ceil(($now-strtotime($source['last_refresh']))/60)." minutes since ".$source['stid']." was refreshed<br />";
     echo $source['stid']." will refresh in ".ceil((($refresh_time - $now)/60)/60)." hours<br />";
-    
+
     // days old
     if ($source['refresh_every']>1) {
       $days_left_until_refresh = ceil(((($refresh_time - $now)/60)/60)/24);
       $days_we_have_run = $source['refresh_every'] - $days_left_until_refresh;
       echo "Days left until refresh: $days_left_until_refresh<br />Days we have run: $days_we_have_run<br />";
     }
-    
+
     // Complete Refresh
     if ($refresh_time < $now) {
       $db->query("UPDATE source_types SET
@@ -58,19 +60,19 @@ function commerce_slurp_update() {
                  slots_until_refresh=".$source['slots_allotment']."
                  WHERE stid='".$source['stid']."'");
       echo "Refreshing the counters for ".$source['stid']."<br />";
-    
+
     // Refresh daily counts
     } elseif ($source['slots_for_today'] == 0 && ($refresh_time-$now) > (86400*$days_we_have_run) && $source['refresh_every']>1) {
-      
+
       $db->query("UPDATE source_types SET
                  last_refresh=last_refresh,
                  slots_for_today=".ceil($source['slots_allotment']/$source['refresh_every'])."
                  WHERE stid='".$source['stid']."'");
       echo "Refreshing the daily counters for ".$source['stid']."<br />";
     }
-    
+
   }
-  
+
   // Pull them again, this time, let's parse some jobs
   $sources = $db->query("SELECT stid,multi,slots_for_today FROM source_types WHERE slots_for_today > 0");
   $first = true;
@@ -78,10 +80,10 @@ function commerce_slurp_update() {
   while ($source = $sources->fetch_assoc()) {
     $jobs = commerce_slurp_load_primary_source($source);
     while ($job = $jobs->fetch_assoc()) {
-      
+
       // Add Source
       commerce_slurp_add_job_from_source($job,$source['multi']);
-      
+
       // Add Extensions to List
       if ($source['multi'] > 0) {
         // Loop through each extension and add it to the list of possible jobs
@@ -89,7 +91,7 @@ function commerce_slurp_update() {
         $sql = "SELECT extension_id FROM extensions WHERE psid=".$job['psid'];
         $extensions = $db->query($sql);
         while ($extension = $extensions->fetch_assoc()) {
-          
+
           if ($first) {
             $extension_ids = $extension['extension_id'];
             $first = false;
@@ -105,7 +107,7 @@ function commerce_slurp_update() {
     krumo($extension_ids);
     $sql = 'SELECT extension_id, psid FROM extensions WHERE extension_id IN ('.$extension_ids.') ORDER BY last_checked ASC'; echo $sql.'<br />';
     $extensions = $db->query($sql);
-    while ($extension = $sources->fetch_assoc()) {
+    while ($extension = $extensions->fetch_assoc()) {
       commerce_slurp_add_job_from_source(array(
           'psid' => $extension['psid'],
           'stid' => 'Module Page',
@@ -116,7 +118,7 @@ function commerce_slurp_update() {
 
 function commerce_slurp_load_primary_source($source) {
   global $db;
-  
+
   $sql = "SELECT psid,stid FROM primary_sources WHERE stid='".$source['stid']."'
           ORDER BY last_checked ASC
           LIMIT 0, ".$source['slots_for_today']; echo 'commerce_slurp_load_primary_source() = '.$sql.'<br />';
@@ -150,7 +152,7 @@ function commerce_slurp_add_job_from_source($job,$multi,$extension_id=NULL) {
                 '".$complete_source['etid']."',
                 'In-Development')";
         $db->query($sql);
-        
+
         // Get ID
         $result2 = $db->query("SELECT extension_id FROM extensions WHERE psid=".$job['psid']." LIMIT 1");
         if (is_object($result2)) {
@@ -173,19 +175,19 @@ function commerce_slurp_add_job_from_source($job,$multi,$extension_id=NULL) {
     }
     $result = $db->query("SELECT COUNT(extension_id) FROM jobs WHERE extension_id=".$extension_id)->fetch_row();
     if (array_pop($result) == 0) {
-      
+
       // Confirm that this extension has not been checked since the last time
       // we refreshed this kind of job
-      
+
       // All "Modules" were loaded ...
       $sql = "SELECT last_refresh FROM source_types WHERE stid='".$job['stid']."' LIMIT 1";
-      $result = $db->query($sql)->fetch_row(); 
+      $result = $db->query($sql)->fetch_row();
       $last_refreshed = array_pop($result);
-      
+
       // This "Module" was last updated ...
       $result = $db->query("SELECT last_checked FROM extensions WHERE extension_id=".$extension_id ." LIMIT 1")->fetch_row();
       $last_checked = array_pop($result);
-      
+
       // If this module has never been checked or hasn't been checked since all
       // "Modules were updated...
       if ($last_checked == "0000-00-00 00:00:00" || strtotime($last_checked) < strtotime($last_refreshed)){
@@ -195,7 +197,7 @@ function commerce_slurp_add_job_from_source($job,$multi,$extension_id=NULL) {
         $db->query($sql);
       }
     }
-    
+
     // update source
     $sql = "UPDATE primary_sources SET last_checked=NOW() WHERE psid=".$job['psid'];
     return $db->query($sql);
@@ -248,7 +250,7 @@ function commerce_slurp_page($extension) {
         if (stristr($text,"Last")) {
           $data['last_modified'] = strtotime(substr($text,15));
         }
-        
+
       }
     }
   }
@@ -286,7 +288,7 @@ function commerce_slurp_page($extension) {
             }
           }
         }
-        
+
         $data[$label] = "In-Development";
         if ($extension['etid'] != "Sandbox" && ($rec_release == "beta" || $rec_release == "rc" || $rec_release == "stable")) {
           $data[$label] = "Recommended";
@@ -315,25 +317,25 @@ function commerce_slurp_page($extension) {
         // get paragraphs
         $paragraphs = preg_split('/$\R?^/m', $object, -1, PREG_SPLIT_NO_EMPTY);
         foreach ($paragraphs as $p) {
-          
+
           // go through each sentence, avoid if it's the disclaimer or headline, let it iterate to another paragraph
           preg_match_all('/([^\.\?!]+[\.\?!])/', $p, $sentences);
-          
+
           if (count($sentences[0]) > 0) {
             foreach ($sentences[0] as $sentence) {
               // Avoid "obligatory" text and common header text
-              if (!stristr(@$sentence,"Recommended releases") && 
-                  !stristr(@$sentence,"This is a sandbox project") && 
-                  !stristr(@$sentence,"Git repository") && 
-                  strncmp(strtolower($sentence), "overview", 8) !== 0 && 
-                  strncmp(strtolower($sentence), "description", 11) !== 0 && 
+              if (!stristr(@$sentence,"Recommended releases") &&
+                  !stristr(@$sentence,"This is a sandbox project") &&
+                  !stristr(@$sentence,"Git repository") &&
+                  strncmp(strtolower($sentence), "overview", 8) !== 0 &&
+                  strncmp(strtolower($sentence), "description", 11) !== 0 &&
                   !stristr(@$sentence,"Experimental Project") &&
                   strlen($desc) < 350){
                 $desc .= @$sentence . " ";
               }
               // Stop if we are at our maximum
               if (strlen($desc) > 350) break;
-              
+
               // Stop if we have reached the download section
               if (stristr(@$sentence,"Recommended releases") || trim(@$sentence)=="7.") break;
             }
@@ -344,7 +346,7 @@ function commerce_slurp_page($extension) {
           // Stop if we have reached the download section
           if (stristr(@$sentence,"Recommended releases") || trim(@$sentence)=="7.") break;
         }
-        
+
         $data[$label] = addslashes(trim($desc));
         break;
       case "last_modified":
@@ -364,7 +366,7 @@ function commerce_slurp_page($extension) {
               break;
             }
           }
-          
+
           // replace last_modified with last commit, if we found it.
           if ($object != 0) {
             if ($last_commit->format("U") > $data[$label]) {
@@ -378,13 +380,13 @@ function commerce_slurp_page($extension) {
       default: break;
     }
   }
-  
+
   return $data;
 }
 
 function commerce_slurp_extension_update ($eid,$extension_updated) {
   global $db;
-  
+
   // Convert dates
   if ($extension_updated['created'] > 0 ) {
     $extension_updated['created'] = date("Y-m-d H:i:s",$extension_updated['created']);
@@ -394,7 +396,7 @@ function commerce_slurp_extension_update ($eid,$extension_updated) {
   } else {
     $extension_updated['last_modified'] = $extension_updated['created'];
   }
-  
+
   if (!array_key_exists("images",$extension_updated)) $extension_updated['images'] = "";
   // Update extension
   $sql = "UPDATE extensions SET
@@ -420,7 +422,7 @@ function commerce_slurp_extension_update ($eid,$extension_updated) {
     return false;
   }
   krumo($extension_updated);
-  
+
   // Move on to the next one...
   return true;
 }
@@ -440,35 +442,36 @@ function commerce_slurp_run_next_job() {
     $sql = "UPDATE jobs SET weight=weight-1 WHERE jid=".$job['jid'];
     $db->query($sql); //krumo($sql);
     return true;
-  
+
   // Else we can run this job
   } else {
     // Process Extension Update Jobs
     if ($job['extension_id'] > 0) {
-      
+
       // Pull current extension info
       $sql = "SELECT * FROM extensions WHERE extension_id=".$job['extension_id']." LIMIT 1";
       $extension = $db->query($sql)->fetch_assoc(); //krumo($sql);
-      
+
       // Extract most updated info
       // TODO: Pull local XML feed info if it's been less than a month
       commerce_slurp_extension_update($job['extension_id'],commerce_slurp_page($extension));
-      
+
       // Remove job, update counter
       commerce_slurp_job_complete($job['jid'],$job['stid']);
-      
+
       // move on to the next one...
       return true;
-      
+
     // Assume we have only primary-sources left...
     } else {
       // Pull current source info
       $source = $db->query("SELECT * FROM primary_sources WHERE psid=".$job['psid']." LIMIT 1")->fetch_assoc();
-      
+
       // Pull HTML
       $crawler = $client->request('GET', $source['url']);
+      krumo($crawler);
       $extensions_to_add = array();
-      
+
       // Parse HTML
       if ($job['stid'] == "RSS") {
         echo "We don't support parsing RSS feeds yet, but soon!<br />";
@@ -578,17 +581,17 @@ function commerce_slurp_run_next_job() {
 
 // function to parse search results
 function commerce_slurp_searchresult($source, $job) {
-  
+
 }
 
 // remove the job, decrement the source type counter
 function commerce_slurp_job_complete($jid, $stid) {
   global $db;
-  
+
   // remove job
   $sql = "DELETE FROM jobs WHERE jid=".$jid;
   $db->query($sql);
-  
+
   // decrement source type counters
   $sql = "UPDATE `source_types` SET
           `slots_for_today`=`slots_for_today`-1,
