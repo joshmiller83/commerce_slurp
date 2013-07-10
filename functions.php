@@ -73,8 +73,8 @@ function commerce_slurp_update() {
 
   }
 
-  // Pull them again, this time, let's parse some jobs
-  $sources = $db->query("SELECT stid,multi,slots_for_today FROM source_types WHERE slots_for_today > 0");
+  // Pull them again, this time, let's parse some multi jobs
+  $sources = $db->query("SELECT stid,multi,slots_for_today FROM source_types WHERE slots_for_today > 0 AND multi=1");
   $first = true;
   $extension_ids = '';
   while ($source = $sources->fetch_assoc()) {
@@ -84,7 +84,7 @@ function commerce_slurp_update() {
       // Add Source
       commerce_slurp_add_job_from_source($job,$source['multi']);
 
-      // Add Extensions to List
+      /*// Add Extensions to List
       if ($source['multi'] > 0) {
         // Loop through each extension and add it to the list of possible jobs
         // we will then filter this list to make the oldest in this list go first
@@ -98,29 +98,50 @@ function commerce_slurp_update() {
           } else {
             $extension_ids .= ', '.$extension['extension_id'];
           }
-          /**/
+          /** /
         }
-      }
+      }/**/
     }
   }
-  if ($extension_ids != '') {
-    krumo($extension_ids);
-    $sql = 'SELECT extension_id, psid FROM extensions WHERE extension_id IN ('.$extension_ids.') ORDER BY last_checked ASC'; echo $sql.'<br />';
-    $extensions = $db->query($sql);
+  // Add Non-multi elements to List
+  $nonmulti_count = $db->query("SELECT stid,multi,slots_for_today FROM source_types WHERE slots_for_today > 0 AND multi != 1");
+  $eids = array();
+  while ($source = $nonmulti_count->fetch_assoc()) {
+    // Primary Sources Non Multi
+    $primary_jobs = commerce_slurp_load_primary_source($source);
+    while ($job = $primary_jobs->fetch_assoc()) {
+      $sql = "SELECT extension_id FROM extensions WHERE psid=".$job['psid'];
+      $extensions = $db->query($sql);
+      while ($extension = $extensions->fetch_assoc()) {
+        $eids[] = $extension['extension_id'];
+      }
+    }
+    // Secondary Sources in Extensions list (could be duplicates)
+    $sql = "SELECT extension_id FROM extensions ORDER BY last_checked LIMIT 0,".$source['slots_for_today'];
+    $extensions = $db->query($sql); krumo("Adding secondary extensions found by multi sources = ".$sql);
+    while ($extension = $extensions->fetch_assoc()) {
+      $eids[] = $extension['extension_id'];
+    }
+  }
+
+  if (true) {
+    krumo($eids);
+    $sql = 'SELECT extension_id, psid FROM extensions WHERE extension_id IN ('.implode(",",$eids).') ORDER BY last_checked'; echo $sql.'<br />';
+    $extensions = $db->query($sql); krumo($sql);
     while ($extension = $extensions->fetch_assoc()) {
       commerce_slurp_add_job_from_source(array(
           'psid' => $extension['psid'],
           'stid' => 'Module Page',
         ),0,$extension['extension_id']);
     }
-  }
+  }/*/**/
 }
 
 function commerce_slurp_load_primary_source($source) {
   global $db;
 
   $sql = "SELECT psid,stid FROM primary_sources WHERE stid='".$source['stid']."'
-          ORDER BY last_checked ASC
+          ORDER BY last_checked
           LIMIT 0, ".$source['slots_for_today']; echo 'commerce_slurp_load_primary_source() = '.$sql.'<br />';
   return $db->query($sql);
 }
