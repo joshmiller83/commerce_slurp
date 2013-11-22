@@ -1,3 +1,4 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <?php
 
 //Initialize various submodules
@@ -12,12 +13,14 @@ require_once 'functions.php';
 use Goutte\Client;
 $client = new Client();
 
-$testpg = "modpage-7-test1.html";
-$leftpart = "http://localhost:8888/commerce_slurp/";
+$testpg = "modpage-7-test5.html";
+$leftpart = "http://localhost:8888/commerce_slurp/testpgs/";
 
 $extension = array(
   'url' => $leftpart.$testpg,
-  'etid' => 'Module',
+  //'etid' => 'Sandbox',
+  //'etid' => 'Module',
+  'etid' => 'Theme',
 );
 
 echo "starting <a href=\"".$leftpart.$testpg."\">the test</a>...";
@@ -28,15 +31,10 @@ function commerce_slurp_page_test($extension) {
   global $db, $client;
   $crawler = $client->request('GET', $extension['url']);
 
-  krumo($crawler->count());
-
   // $data['name']
-  $name = $crawler->filter("h1#page-subtitle");
-  krumo($name->count());
+  $name = $crawler->filter("h1");
   if ($name->count() > 0) {
     $data['name'] = addslashes($name->text());
-  } else {
-    $data['name'] = 'unknown';
   }
 
   // $data['author']
@@ -49,14 +47,18 @@ function commerce_slurp_page_test($extension) {
   $data['status'] = "In-Development"; // see below, based on release version
   $data['downloads'] = 0;
   $data['installs'] = 0;
-  $data['bugs'] = $crawler->filter("div.issue-cockpit-bug div.issue-cockpit-totals a");
+  $data['bugs'] = $crawler->filter("div.issue-cockpit-1 div.issue-cockpit-totals a:first-child");
+  krumo($data['bugs']->html());
   $created = $crawler->filter("div.submitted em");
   if ($created->count() > 0) $data['created'] = $created->text();
   $data['last_modified'] = 0;
-  $images = $crawler->filter("div.field-field-project-images div.field-item a");
+  $images = $crawler->filter("div.field-name-field-project-images div.field-item a");
   if ($images->count() > 0) $data['images'] = $images->attr("href");
-  $desc = $crawler->filter("div.node-content");
-  if ($desc->count() > 0) $data['desc'] = $desc->text();
+
+  // Description
+  $desc = $crawler->filter("div.field-name-body .field-item");
+  if ($desc->count() > 0) $data['desc'] = mb_convert_encoding(utf8_decode($desc->html()), "HTML-ENTITIES", 'UTF-8');
+
   // Targeting on UL that has lots of data...
   // find maintenance & development status
   $maintenance_status = "";
@@ -149,41 +151,7 @@ function commerce_slurp_page_test($extension) {
         $data[$label] = ($object->count() != 0) ? intval(str_ireplace(' open', '', $object->first()->text())) : 0;
         break;
       case "desc":
-        $desc = "";
-        // get paragraphs
-        $paragraphs = preg_split('/$\R?^/m', $object, -1, PREG_SPLIT_NO_EMPTY);
-        foreach ($paragraphs as $p) {
-
-          // go through each sentence, avoid if it's the disclaimer or headline, let it iterate to another paragraph
-          preg_match_all('/([^\.\?!]+[\.\?!])/', $p, $sentences);
-
-          if (count($sentences[0]) > 0) {
-            foreach ($sentences[0] as $sentence) {
-              // Avoid "obligatory" text and common header text
-              if (!stristr(@$sentence,"Recommended releases") &&
-                  !stristr(@$sentence,"This is a sandbox project") &&
-                  !stristr(@$sentence,"Git repository") &&
-                  strncmp(strtolower($sentence), "overview", 8) !== 0 &&
-                  strncmp(strtolower($sentence), "description", 11) !== 0 &&
-                  !stristr(@$sentence,"Experimental Project") &&
-                  strlen($desc) < 350){
-                $desc .= @$sentence . " ";
-              }
-              // Stop if we are at our maximum
-              if (strlen($desc) > 350) break;
-
-              // Stop if we have reached the download section
-              if (stristr(@$sentence,"Recommended releases") || trim(@$sentence)=="7.") break;
-            }
-          }
-          // Stop if we are at our maximum
-          if (strlen($desc) > 350) break;
-
-          // Stop if we have reached the download section
-          if (stristr(@$sentence,"Recommended releases") || trim(@$sentence)=="7.") break;
-        }
-
-        $data[$label] = addslashes(trim($desc));
+        $data[$label] = addslashes(trim($data[$label]));
         break;
       case "last_modified":
         // determine last commit (usually the most recent change is code to dev)
