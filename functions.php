@@ -293,6 +293,8 @@ function commerce_slurp_page($extension) {
   foreach ($data as $label=>$object) {
     switch($label) {
       case "name":
+        // Transliterate any UTF8 weird things.
+        $object = iconv("UTF-8", "ISO-8859-1//TRANSLIT", utf8_decode($object));
         if ($extension['etid'] == "Sandbox") {
           $title = explode(":",$object);
           if (count($title) > 1) {
@@ -471,89 +473,23 @@ function commerce_slurp_run_next_job() {
       // Pull current source info
       $source = $db->query("SELECT * FROM primary_sources WHERE psid=".$job['psid']." LIMIT 1")->fetch_assoc();
 
-      // Pull HTML
-      $crawler = $client->request('GET', $source['url']);
-      krumo($crawler);
-      $extensions_to_add = array();
-
-      // Parse HTML
-      if ($job['stid'] == "RSS") {
-        echo "We don't support parsing RSS feeds yet, but soon!<br />";
-      } else {
-        switch ($source['etid']) {
-          case "Module":
-            $module_listings = $crawler->filter("dt.title a")->count();
-            if ($module_listings > 0) {
-              for ($i = 0; $i < $module_listings; ++$i) {
-                $url = $crawler->filter("dt.title a")->eq($i)->attr("href");
-                if (stristr($url,"commerce_") || stristr($url,"_commerce")) {
-                  $extensions_to_add[] = array(
-                    "name" => $crawler->filter("dt.title")->eq($i)->text(),
-                    "url" => $url,
-                    "author" => $crawler->filter("dd p:first-child a:first-child")->eq($i)->text(),
-                  );
-                }
-              }
-            }
-            break;
-          case "Theme":
-            $module_listings = $crawler->filter("dt.title a")->count();
-            if ($module_listings > 0) {
-              for ($i = 0; $i < $module_listings; ++$i) {
-                $extensions_to_add[] = array(
-                  "name" => $crawler->filter("dt.title")->eq($i)->text(),
-                  "url" => $crawler->filter("dt.title a")->eq($i)->attr("href"),
-                  "author" => $crawler->filter("dd p:first-child a:first-child")->eq($i)->text(),
-                );
-              }
-            }
-            break;
-          case "Distribution":
-            $module_listings = $crawler->filter(".project h2.title a")->count();
-            if ($module_listings > 0) {
-              for ($i = 0; $i < $module_listings; ++$i) {
-                $extensions_to_add[] = array(
-                  "name" => $crawler->filter(".project h2.title")->eq($i)->text(),
-                  "url" => "http://drupal.org".$crawler->filter(".project h2.title a")->eq($i)->attr("href"),
-                  "author" => $crawler->filter(".project ul.project-meta li.first a")->eq($i)->text(),
-                );
-              }
-            }
-            break;
-          case "Sandbox":
-            $module_listings = $crawler->filter(".project h2.title a")->count();
-            if ($module_listings > 0) {
-              for ($i = 0; $i < $module_listings; ++$i) {
-                $name = $crawler->filter(".project h2.title")->eq($i);
-                $name = ($name->count() > 0)? $name->text():"";
-                $url = $crawler->filter(".project h2.title a")->eq($i);
-                $url = ($url->count() > 0)? "http://drupal.org".$url->attr("href"):"";
-                $author = $crawler->filter(".project ul.project-meta li.first a")->eq($i);
-                $author = ($author->count() > 0)? $author->text():"";
-                if ($url != "") {
-                  $extensions_to_add[] = array(
-                    "name" => $name,
-                    "url" => $url,
-                    "author" => $author,
-                  );
-                }
-              }
-            }
-            break;
-        }
-      }
+      // Parse Page
+      $extensions_to_add = commerce_slurp_searchresult($source);
       echo "Found ".count($extensions_to_add)." ".$source['etid']." ".$job['stid'];
       $inserted = 0;
-      krumo($extensions_to_add);
+      //krumo($extensions_to_add);
+
       // Add Extensions found
       if (count($extensions_to_add) > 0) {
         $sql = "INSERT INTO extensions (name, author, url, psid, etid, esid) VALUES";
         $first = true;
+        $inserted_array = array();
         foreach ($extensions_to_add as $data) {
           $test = "SELECT * FROM extensions WHERE url='".$data['url']."' OR `name`='".trim(addslashes($data['name']))."'";
           $current_exist = $db->query($test);
           if ($current_exist->num_rows == 0) {
             $inserted++;
+            $inserted_array[] = $data;
             if (!$first) $sql .= ', ';
             // Add minimal extension record
             $sql .= "('".trim(addslashes($data['name']))."',
@@ -571,8 +507,10 @@ function commerce_slurp_run_next_job() {
         echo "<em>All of the ".$source['etid']." ".$job['stid'] . " already exist in database!</em><br />";
       } else if ($inserted != count($extensions_to_add)) {
         echo "Found <strong>$inserted</strong> new ".$source['etid']." ".$job['stid']."<br />";
+        krumo($inserted_array);
       } else {
         echo "We added <strong>".count($extensions_to_add)."</strong> ".$source['etid']." ".$job['stid'] . " to the database.<br />";
+        krumo($inserted_array);
       }
       // Move on to the next one...
       // Remove job, update counter
@@ -584,9 +522,32 @@ function commerce_slurp_run_next_job() {
 }
 
 // function to parse search results
-/*function commerce_slurp_searchresult($source, $job) {
+function commerce_slurp_searchresult($source) {
 
-}*/
+  global $db, $client;
+
+  // Pull HTML
+  $crawler = $client->request('GET', $source['url']);
+  $extensions_to_add = array();
+  $listings = $crawler->filter("ol.search-results li.search-result");
+  if ($listings->count()) {
+    for ($i = 0; $i < $listings->count(); ++$i) {
+      $url = $listings->eq($i)->filter('h3.title a')->attr('href');
+      // Sigh, we should do something more here.
+      if (   ($source['etid']=='Module' && (stristr($url,"commerce_") || stristr($url,"_commerce")))
+          || ($source['etid']=='Theme'
+              || $source['etid']=='Distribution'
+              || $source['etid']=='Sandbox')) {
+        $extensions_to_add[] = array(
+          "name" => $listings->eq($i)->filter("h3.title")->text(),
+          "url" => $url,
+          "author" => $listings->eq($i)->filter("p.submitted a.username")->text(),
+        );
+      }
+    }
+  }
+  return $extensions_to_add;
+}
 
 // remove the job, decrement the source type counter
 function commerce_slurp_job_complete($jid, $stid) {

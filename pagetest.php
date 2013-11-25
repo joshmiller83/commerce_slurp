@@ -42,37 +42,3 @@ $source = array(
 
 echo "starting <a href=\"".$leftpart.$testsearch."\">the test</a>...";
 krumo(commerce_slurp_searchresult($source));
-
-function commerce_slurp_searchresult($source) {
-  global $db, $client;
-
-  // Pull HTML
-  $crawler = $client->request('GET', $source['url']);
-  $extensions_to_add = array();
-
-  switch ($source['etid']) {
-    case "Module":
-    case "Theme":
-    case "Distribution":
-    case "Sandbox":
-      $listings = $crawler->filter("ol.search-results li.search-result");
-      if ($listings->count()) {
-        for ($i = 0; $i < $listings->count(); ++$i) {
-          $url = $listings->eq($i)->filter('h3.title a')->attr('href');
-          // Sigh, we should do something more here.
-          if (   ($source['etid']=='Module' && (stristr($url,"commerce_") || stristr($url,"_commerce")))
-              || ($source['etid']=='Theme'
-                  || $source['etid']=='Distribution'
-                  || $source['etid']=='Sandbox')) {
-            $extensions_to_add[] = array(
-              "name" => $listings->eq($i)->filter("h3.title")->text(),
-              "url" => $url,
-              "author" => $listings->eq($i)->filter("p.submitted a.username")->text(),
-            );
-          }
-        }
-      }
-      break;
-  }
-  return $extensions_to_add;
-}

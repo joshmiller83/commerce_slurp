@@ -43,4 +43,4 @@ foreach ($collate as $single_extension) {
     }
   }
 }
-echo "<br /><br />Duplicates found: ".count($remove);
+echo "<br /><br />Duplicates found and removed: ".count($remove);
