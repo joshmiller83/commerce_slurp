@@ -584,9 +584,9 @@ function commerce_slurp_run_next_job() {
 }
 
 // function to parse search results
-function commerce_slurp_searchresult($source, $job) {
+/*function commerce_slurp_searchresult($source, $job) {
 
-}
+}*/
 
 // remove the job, decrement the source type counter
 function commerce_slurp_job_complete($jid, $stid) {
